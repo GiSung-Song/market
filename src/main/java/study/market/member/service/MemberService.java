@@ -1,13 +1,11 @@
 package study.market.member.service;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import study.market.member.repository.MemberRepository;
+import study.market.member.dto.MemberSignUpReqDto;
 
-@Service
-@RequiredArgsConstructor
-public class MemberService {
+public interface MemberService {
 
-    private final MemberRepository memberRepository;
+    Long signUp(MemberSignUpReqDto dto); //회원가입
+    boolean isDuplicatedEmail(String email); //이메일 중복 확인
+    void editPassword(Long id, String password); //패스워드 변경
 
 }
