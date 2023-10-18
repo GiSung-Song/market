@@ -19,6 +19,9 @@ public class MemberSignUpReqDto {
     public String password;
 
     @NotBlank
+    public String passwordConfirm;
+
+    @NotBlank
     @Min(2) @Max(4)
     public String name;
 
