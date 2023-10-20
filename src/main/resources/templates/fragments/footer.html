@@ -1,10 +1,25 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
+<!-- 사용자 CSS 추가 -->
+<th:block layout:fragment="css">
+    <style>
+        footer {
+            width: 100%;
+            position: absolute;
+            height: 99999px;
+            bottom: 0;
+            left: 0;
+        }
+    </style>
+</th:block>
+
 <div class="footer" th:fragment="footer">
     <footer class="page-footer font-small cyan darken-3">
-        <div class="footer-copyright text-center py-3" style="position: absolute; bottom: 0px; text-align : center">
+        <div class="footer-copyright text-center py-3">
             COPYRIGHT@GISUNG
         </div>
     </footer>
 </div>
 </html>
+

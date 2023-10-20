@@ -9,7 +9,7 @@
     <script th:inline="javascript">
 
         function checkDuplicated() {
-            const email = $("#member_email").val();
+            const email = $("#email").val();
             const data = {
                 email : email
             };
@@ -18,16 +18,18 @@
                 type : "post",
                 async : false,
                 url : "/member/checkEmail",
+                dataType : "JSON",
+                contentType : "application/json; charset=utf-8",
                 data : data,
                 success : function (res) {
 
                     if(res == true) {
                         $("#isDuplicated").text("이메일 중복입니다. 다른 이메일을 사용해주세요.");
-                        $("#isDuplicated").css("display", "");
                     } else {
                         $("#isDuplicated").text("사용 가능한 이메일입니다.");
-                        $("#isDuplicated").css("display", "");
+                        document.getElementById("signup").disabled = false;
                     }
+                    $("#isDuplicated").css("display", "block");
 
                 }
             });
@@ -60,6 +62,11 @@
             margin-top: 10px;
             margin-left: 100px;
         }
+
+        .fieldError {
+            margin-left: 100px;
+            color: red;
+        }
     </style>
 </th:block>
 
@@ -73,35 +80,40 @@
         <div class="form-group">
             <label th:for="email">이메일</label>
             <input type="email" th:field="*{email}" class="form-control" placeholder="이메일을 입력해주세요" style="width: 300px">
-            <button type="button" id="checkDuplicate" class="checkDuplicate" aria-label="checkDuplicated" onclick="checkDuplicated()">중복확인</button>
+            <button type="button" id="checkDuplicate" class="checkDuplicate" aria-label="checkDuplicate" onclick="checkDuplicated()">중복확인</button>
+            <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="fieldError">이메일</p>
                 <span id="isDuplicated" class="isDuplicated" style="display: none"></span>
         </div>
         <div class="form-group">
             <label th:for="password">비밀번호</label>
-            <input type="password" th:field="*{password}" class="form-control" placeholder="비밀번호를 입력해주세요" style="width: 200px">
+            <input type="password" th:field="*{password}" class="form-control" placeholder="비밀번호" style="width: 300px">
+            <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="fieldError">비밀번호</p>
         </div>
         <div class="form-group">
             <label th:for="passwordConfirm">비밀번호 확인</label>
-            <input type="password" th:field="*{passwordConfirm}" class="form-control" placeholder="비밀번호를 다시 한 번 입력해주세요" style="width: 200px">
+            <input type="password" th:field="*{passwordConfirm}" class="form-control" placeholder="비밀번호 확인" style="width: 300px">
+            <p th:if="${#fields.hasErrors('passwordConfirm')}" th:errors="*{passwordConfirm}" class="fieldError">비밀번호 확인</p>
         </div>
         <div class="form-group">
             <label th:for="name">이름</label>
-            <input type="text" th:field="*{name}" class="form-control" placeholder="이름을 입력해주세요" style="width: 100px">
+            <input type="text" th:field="*{name}" class="form-control" placeholder="이름" style="width: 100px">
+            <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="fieldError">이름</p>
         </div>
         <div class="form-group">
-            <label th:for="phoneNumber">핸드폰 번호</label>
-            <input type="text" th:field="*{phoneNumber}" class="form-control" placeholder="핸드폰 번호를 입력해주세요" style="width: 200px">
+            <label th:for="phoneNumber">전화번호</label>
+            <input type="text" th:field="*{phoneNumber}" class="form-control" placeholder="전화번호" style="width: 300px">
+            <p th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}" class="fieldError">전화번호</p>
         </div>
         <div class="form-group">
             <label th:for="address">주소</label>
-            <input type="text" th:field="*{address}" class="form-control" placeholder="주소를 입력해주세요" style="width: 100px">
+            <input type="text" th:field="*{address}" class="form-control" placeholder="주소" style="width: 1000px">
         </div>
         <div class="form-group">
             <label th:for="zipCode">우편번호</label>
-            <input type="text" th:field="*{zipCode}" class="form-control" placeholder="우편번호를 입력해주세요" style="width: 100px">
+            <input type="text" th:field="*{zipCode}" class="form-control" placeholder="우편번호" style="width: 100px">
         </div>
         <div style="text-align: center">
-            <button type="submit" class="btn btn-primary" style="">회원가입</button>
+            <button type="submit" id="signup" class="btn btn-primary" disabled>회원가입</button>
         </div>
     </form>
 

@@ -11,29 +11,29 @@ import org.hibernate.validator.constraints.Length;
 @NoArgsConstructor
 public class MemberSignUpReqDto {
 
-    @Email
-    @NotBlank
+    @Email(message = "이메일 형식으로 작성해주세요. ex) abcde@naver.com")
+    @NotBlank(message = "필수 입력 값 입니다.")
     public String email;
 
-    @NotBlank
+    @NotBlank(message = "필수 입력 값 입니다.")
     public String password;
 
-    @NotBlank
+    @NotBlank(message = "필수 입력 값 입니다.")
     public String passwordConfirm;
 
-    @NotBlank
-    @Min(2) @Max(4)
+    @NotBlank(message = "필수 입력 값 입니다.")
+    @Size(min = 2, max = 6, message = "이름은 2 ~ 6자 사이로 입력해주세요.")
     public String name;
 
-    @NotBlank
-    @Pattern(regexp = "^\\d{2,3}-\\d{3,4}-\\d{4}$")
+    @NotBlank(message = "필수 입력 값 입니다.")
+    @Pattern(regexp = "^\\d{2,3}-\\d{3,4}-\\d{4}$", message = "ex) 010-1234-5678")
     public String phoneNumber;
 
-    @NotBlank
+    @NotBlank(message = "필수 입력 값 입니다.")
     public String address;
 
-    @NotBlank
-    @Length(min = 6, max = 6)
+    @NotBlank(message = "필수 입력 값 입니다.")
+    @Length(min = 5, max = 5, message = "우편번호는 6자리입니다.")
     public String zipCode;
 
 }

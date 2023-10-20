@@ -29,6 +29,17 @@ public class MemberController {
     public String signup(@Valid @ModelAttribute("member") MemberSignUpReqDto dto, BindingResult bindingResult) {
 
         log.info("post");
+
+
+        if (bindingResult.hasErrors()) {
+
+            log.info("has error");
+
+            return "member/signupMemberForm";
+        }
+
+        log.info("no error");
+
         memberService.signUp(dto);
 
         return "redirect:/";
@@ -36,7 +47,10 @@ public class MemberController {
 
     @ResponseBody
     @PostMapping("/checkEmail")
-    public boolean isDuplicatedEmail(String email) {
+    public boolean isDuplicatedEmail(@RequestBody String email) {
+
+        log.info("email : ", email);
+
         return memberService.isDuplicatedEmail(email);
     }
 
