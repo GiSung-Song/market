@@ -8,8 +8,28 @@
 
     <script th:inline="javascript">
 
+        $(document).ready(function() {
+
+            let check = "[[${session.check}]]";
+
+            if(check == "Y") {
+                $("#isDuplicated").text("사용 가능한 이메일입니다.");
+                document.getElementById("signup").disabled = false;
+                $("#isDuplicated").css("display", "block");
+            } else {
+                $("#isDuplicated").css("display", "none");
+                document.getElementById("signup").disabled = true;
+            }
+        })
+
+        function changeEmail() {
+            $("#isDuplicated").css("display", "none");
+            document.getElementById("signup").disabled = true;
+        }
+
         function checkDuplicated() {
-            const email = $("#email").val();
+            // const email = $("#email").val();
+            const email = document.getElementById("email").value;
             const data = {
                 email : email
             };
@@ -18,8 +38,7 @@
                 type : "post",
                 async : false,
                 url : "/member/checkEmail",
-                dataType : "JSON",
-                contentType : "application/json; charset=utf-8",
+                contentType : "application/x-www-form-urlencoded; charset=UTF-8",
                 data : data,
                 success : function (res) {
 
@@ -30,7 +49,6 @@
                         document.getElementById("signup").disabled = false;
                     }
                     $("#isDuplicated").css("display", "block");
-
                 }
             });
         }
@@ -79,7 +97,7 @@
     <form action="/member/signup" role="form" method="post" th:object="${member}">
         <div class="form-group">
             <label th:for="email">이메일</label>
-            <input type="email" th:field="*{email}" class="form-control" placeholder="이메일을 입력해주세요" style="width: 300px">
+            <input type="email" th:field="*{email}" class="form-control" placeholder="이메일을 입력해주세요" style="width: 300px" onchange="">
             <button type="button" id="checkDuplicate" class="checkDuplicate" aria-label="checkDuplicate" onclick="checkDuplicated()">중복확인</button>
             <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="fieldError">이메일</p>
                 <span id="isDuplicated" class="isDuplicated" style="display: none"></span>

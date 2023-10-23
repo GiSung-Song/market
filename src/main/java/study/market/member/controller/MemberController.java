@@ -1,11 +1,14 @@
 package study.market.member.controller;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import study.market.member.dto.MemberSignUpReqDto;
 import study.market.member.service.MemberService;
 
@@ -19,26 +22,36 @@ public class MemberController {
 
     @GetMapping("/signup")
     public String signupForm(@ModelAttribute("member") MemberSignUpReqDto dto) {
-
-        log.info("회원가입 form 이동");
-
         return "member/signupMemberForm";
     }
 
     @PostMapping("/signup")
-    public String signup(@Valid @ModelAttribute("member") MemberSignUpReqDto dto, BindingResult bindingResult) {
-
-        log.info("post");
-
+    public String signup(@Valid @ModelAttribute("member") MemberSignUpReqDto dto,
+                         BindingResult bindingResult,
+                         HttpSession session,
+                         Model model) {
 
         if (bindingResult.hasErrors()) {
 
-            log.info("has error");
+            Boolean isDuplicate = (Boolean) session.getAttribute("isDuplicate");
+            String email = (String) session.getAttribute("email");
+
+            if (isDuplicate != null && email != null) {
+
+                if (dto.getEmail().equals(email) && isDuplicate == false) {
+                    model.addAttribute("check", "Y");
+                } else {
+                    model.addAttribute("check", "N");
+                }
+
+            }
+
+            //세션 데이터 삭제
+            session.removeAttribute("isDuplicate");
+            session.removeAttribute("email");
 
             return "member/signupMemberForm";
         }
-
-        log.info("no error");
 
         memberService.signUp(dto);
 
@@ -47,11 +60,16 @@ public class MemberController {
 
     @ResponseBody
     @PostMapping("/checkEmail")
-    public boolean isDuplicatedEmail(@RequestBody String email) {
+    public boolean isDuplicatedEmail(@RequestBody String email, HttpSession session) {
 
-        log.info("email : ", email);
+        log.info("email : {}", email);
 
-        return memberService.isDuplicatedEmail(email);
+        boolean isDuplicate = memberService.isDuplicatedEmail(email);
+
+        session.setAttribute("email", email);
+        session.setAttribute("isDuplicate", isDuplicate);
+
+        return isDuplicate;
     }
 
 }
