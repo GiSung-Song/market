@@ -33,7 +33,10 @@ public class MemberSignUpReqDto {
     public String address;
 
     @NotBlank(message = "필수 입력 값 입니다.")
-    @Length(min = 5, max = 5, message = "우편번호는 6자리입니다.")
+    public String detailAddress;
+
+    @NotBlank(message = "필수 입력 값 입니다.")
+    @Length(min = 5, max = 5, message = "우편번호는 5자리입니다.")
     public String zipCode;
 
 }

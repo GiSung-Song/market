@@ -26,50 +26,24 @@ public class MemberController {
     }
 
     @PostMapping("/signup")
-    public String signup(@Valid @ModelAttribute("member") MemberSignUpReqDto dto,
-                         BindingResult bindingResult,
-                         HttpSession session,
-                         Model model) {
+    public String signup(@Valid @ModelAttribute("member") MemberSignUpReqDto dto, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
-
-            Boolean isDuplicate = (Boolean) session.getAttribute("isDuplicate");
-            String email = (String) session.getAttribute("email");
-
-            if (isDuplicate != null && email != null) {
-
-                if (dto.getEmail().equals(email) && isDuplicate == false) {
-                    model.addAttribute("check", "Y");
-                } else {
-                    model.addAttribute("check", "N");
-                }
-
-            }
-
-            //세션 데이터 삭제
-            session.removeAttribute("isDuplicate");
-            session.removeAttribute("email");
-
             return "member/signupMemberForm";
         }
 
         memberService.signUp(dto);
 
-        return "redirect:/";
+        return "redirect:/member/";
     }
 
     @ResponseBody
     @PostMapping("/checkEmail")
-    public boolean isDuplicatedEmail(@RequestBody String email, HttpSession session) {
+    public boolean isDuplicatedEmail(@RequestBody MemberSignUpReqDto dto) {
 
-        log.info("email : {}", email);
+        log.info("email : {}", dto.getEmail());
 
-        boolean isDuplicate = memberService.isDuplicatedEmail(email);
-
-        session.setAttribute("email", email);
-        session.setAttribute("isDuplicate", isDuplicate);
-
-        return isDuplicate;
+        return memberService.isDuplicatedEmail(dto.getEmail());
     }
 
 }

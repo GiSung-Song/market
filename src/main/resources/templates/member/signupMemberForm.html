@@ -2,25 +2,26 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout}">
-
 <!-- 사용자 스크립트 추가 -->
 <th:block layout:fragment="script">
 
+    <script src="http://dmaps.daum.net/map_js_init/postcode.v2.js"></script>
+
     <script th:inline="javascript">
+        function confirmPassword() {
 
-        $(document).ready(function() {
+            let password = $("#password").val();
+            let passwordConfirm = $("#passwordConfirm").val();
 
-            let check = "[[${session.check}]]";
-
-            if(check == "Y") {
-                $("#isDuplicated").text("사용 가능한 이메일입니다.");
-                document.getElementById("signup").disabled = false;
-                $("#isDuplicated").css("display", "block");
-            } else {
-                $("#isDuplicated").css("display", "none");
+            if (password != passwordConfirm) {
+                $("#anotherPassword").css("display", "block");
+                $("#anotherPassword").text("비밀번호가 다릅니다.");
                 document.getElementById("signup").disabled = true;
+            } else {
+                $("#anotherPassword").css("display", "none");
+                document.getElementById("signup").disabled = false;
             }
-        })
+        }
 
         function changeEmail() {
             $("#isDuplicated").css("display", "none");
@@ -28,8 +29,22 @@
         }
 
         function checkDuplicated() {
+            let regExp = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
             // const email = $("#email").val();
             const email = document.getElementById("email").value;
+
+            if(!email) {
+                $("#isDuplicated").text("이메일을 입력해주세요.");
+                $("#isDuplicated").css("display", "block");
+                return;
+            }
+
+            if(email.match(regExp) == null) {
+                $("#isDuplicated").text("이메일을 형식으로 입력해주세요.");
+                $("#isDuplicated").css("display", "block");
+                return;
+            }
+
             const data = {
                 email : email
             };
@@ -38,8 +53,8 @@
                 type : "post",
                 async : false,
                 url : "/member/checkEmail",
-                contentType : "application/x-www-form-urlencoded; charset=UTF-8",
-                data : data,
+                contentType : "application/json; charset=UTF-8",
+                data : JSON.stringify(data),
                 success : function (res) {
 
                     if(res == true) {
@@ -51,6 +66,38 @@
                     $("#isDuplicated").css("display", "block");
                 }
             });
+        }
+
+        function findAddress() {
+            new daum.Postcode({
+                oncomplete: function(data) {
+                    // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+
+                    // 도로명 주소의 노출 규칙에 따라 주소를 표시한다.
+                    // 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+                    let roadAddr = data.roadAddress; // 도로명 주소 변수
+                    let extraRoadAddr = ''; // 참고 항목 변수
+
+                    // 법정동명이 있을 경우 추가한다. (법정리는 제외)
+                    // 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
+                    if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
+                        extraRoadAddr += data.bname;
+                    }
+                    // 건물명이 있고, 공동주택일 경우 추가한다.
+                    if(data.buildingName !== '' && data.apartment === 'Y'){
+                        extraRoadAddr += (extraRoadAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+                    }
+                    // 표시할 참고항목이 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
+                    if(extraRoadAddr !== ''){
+                        extraRoadAddr = ' (' + extraRoadAddr + ')';
+                    }
+
+                    // 우편번호와 주소 정보를 해당 필드에 넣는다.
+                    document.getElementById('zipCode').value = data.zonecode;
+                    document.getElementById("address").value = roadAddr + extraRoadAddr;
+                    document.getElementById("detailAddress").focus();
+                }
+            }).open();
         }
 
     </script>
@@ -71,7 +118,7 @@
             margin-left: 100px;
         }
 
-        .isDuplicated {
+        span {
             margin-top: 10px;
             margin-left: 100px;
         }
@@ -97,10 +144,10 @@
     <form action="/member/signup" role="form" method="post" th:object="${member}">
         <div class="form-group">
             <label th:for="email">이메일</label>
-            <input type="email" th:field="*{email}" class="form-control" placeholder="이메일을 입력해주세요" style="width: 300px" onchange="">
+            <input type="email" th:field="*{email}" class="form-control" placeholder="이메일을 입력해주세요" style="width: 300px" onchange="changeEmail()">
             <button type="button" id="checkDuplicate" class="checkDuplicate" aria-label="checkDuplicate" onclick="checkDuplicated()">중복확인</button>
             <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="fieldError">이메일</p>
-                <span id="isDuplicated" class="isDuplicated" style="display: none"></span>
+            <span id="isDuplicated" class="isDuplicated" style="display: none"></span>
         </div>
         <div class="form-group">
             <label th:for="password">비밀번호</label>
@@ -109,8 +156,9 @@
         </div>
         <div class="form-group">
             <label th:for="passwordConfirm">비밀번호 확인</label>
-            <input type="password" th:field="*{passwordConfirm}" class="form-control" placeholder="비밀번호 확인" style="width: 300px">
+            <input type="password" th:field="*{passwordConfirm}" class="form-control" placeholder="비밀번호 확인" style="width: 300px" onchange="confirmPassword()">
             <p th:if="${#fields.hasErrors('passwordConfirm')}" th:errors="*{passwordConfirm}" class="fieldError">비밀번호 확인</p>
+            <span id="anotherPassword" class="isDuplicated" style="display: none"></span>
         </div>
         <div class="form-group">
             <label th:for="name">이름</label>
@@ -123,12 +171,17 @@
             <p th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}" class="fieldError">전화번호</p>
         </div>
         <div class="form-group">
-            <label th:for="address">주소</label>
-            <input type="text" th:field="*{address}" class="form-control" placeholder="주소" style="width: 1000px">
+            <label th:for="zipCode">우편번호</label>
+            <input type="button" onclick="findAddress()" value="우편번호 찾기">
+            <input type="text" th:field="*{zipCode}" class="form-control" placeholder="우편번호" style="width: 100px" readonly>
         </div>
         <div class="form-group">
-            <label th:for="zipCode">우편번호</label>
-            <input type="text" th:field="*{zipCode}" class="form-control" placeholder="우편번호" style="width: 100px">
+            <label th:for="address">주소</label>
+            <input type="text" th:field="*{address}" class="form-control" placeholder="도로명 주소" style="width: 1000px" readonly>
+        </div>
+        <div class="form-group">
+            <label th:for="detailAddress">상세주소</label>
+            <input type="text" th:field="*{detailAddress}" class="form-control" placeholder="상세주소" style="width: 1000px">
         </div>
         <div style="text-align: center">
             <button type="submit" id="signup" class="btn btn-primary" disabled>회원가입</button>

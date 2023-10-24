@@ -16,6 +16,7 @@ import study.market.member.Role;
  * password : 비밀번호
  * name : 이름
  * address : 주소
+ * detailAddress : 상세 주소
  * zipCode : 우편번호
  * memberStatus : 회원 상태(활성화, 중지)
  * role : 회원 구분(관리자, 사용자)
@@ -45,6 +46,9 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private String address;
 
+    @Column(nullable = false)
+    private String detailAddress;
+
     @Column(nullable = false, length = 5)
     private String zipCode;
 
@@ -57,12 +61,13 @@ public class Member extends BaseTimeEntity {
     private Role role;
 
     @Builder
-    public Member(String email, String password, String name, String phoneNumber, String address, String zipCode, MemberStatus memberStatus, Role role) {
+    public Member(String email, String password, String name, String phoneNumber, String address, String detailAddress, String zipCode, MemberStatus memberStatus, Role role) {
         this.email = email;
         this.password = password;
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.address = address;
+        this.detailAddress = detailAddress;
         this.zipCode = zipCode;
         this.memberStatus = memberStatus;
         this.role = role;
@@ -74,8 +79,9 @@ public class Member extends BaseTimeEntity {
     }
 
     //주소 변경
-    public void editAddress(String address, String zipCode) {
+    public void editAddress(String address, String detailAddress, String zipCode) {
         this.address = address;
+        this.detailAddress = detailAddress;
         this.zipCode = zipCode;
     }
 

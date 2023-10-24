@@ -30,6 +30,7 @@ public class MemberServiceImpl implements MemberService {
                 .name(dto.getName())
                 .phoneNumber(dto.getPhoneNumber())
                 .address(dto.getAddress())
+                .detailAddress(dto.getDetailAddress())
                 .zipCode(dto.getZipCode())
                 .memberStatus(MemberStatus.NON) //인증받기 전 이므로 NON
                 .role(Role.USER)
