@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class MailService {
 
     private final JavaMailSender mailSender;
+    private final RedisService redisService;
 
     public void sendMail(String email) {
 
@@ -33,6 +34,9 @@ public class MailService {
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
+
+        //5분 제한
+        redisService.setDataExpire(email, tmpKey, 60 * 3L);
     }
 
     private String getTempKey() {

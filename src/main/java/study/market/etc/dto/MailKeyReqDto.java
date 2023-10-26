@@ -8,5 +8,6 @@ import lombok.Setter;
 public class MailKeyReqDto {
 
     private String email;
+    private String authKey;
 
 }

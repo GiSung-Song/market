@@ -5,10 +5,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import study.market.etc.service.MailService;
 import study.market.member.dto.MemberSignUpReqDto;
 import study.market.member.service.MemberService;
 
@@ -19,6 +18,7 @@ import study.market.member.service.MemberService;
 public class MemberController {
 
     private final MemberService memberService;
+    private final MailService mailService;
 
     @GetMapping("/signup")
     public String signupForm(@ModelAttribute("member") MemberSignUpReqDto dto) {
@@ -33,8 +33,7 @@ public class MemberController {
         }
 
         memberService.signUp(dto);
-
-        return "redirect:/member/";
+        return "redirect:/mail/auth";
     }
 
     @ResponseBody

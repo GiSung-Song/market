@@ -8,6 +8,37 @@
     <script src="http://dmaps.daum.net/map_js_init/postcode.v2.js"></script>
 
     <script th:inline="javascript">
+
+        let isDuplicate = true;
+
+        let time = 180000; // 60 * 3 * 1000;
+        let min = 3; //3분
+        let sec = 60; //60초
+
+        $(document).ready(function () {
+            $("#showPassword").on("click", function () {
+                const passwordField = $("#password");
+                const passwordType = passwordField.attr("type");
+
+                if (passwordType == "password") {
+                    passwordField.attr("type", "text");
+                } else {
+                    passwordField.attr("type", "password");
+                }
+            });
+
+            $("#showPasswordConfirm").on("click", function () {
+                const passwordField = $("#passwordConfirm");
+                const passwordType = passwordField.attr("type");
+
+                if (passwordType == "password") {
+                    passwordField.attr("type", "text");
+                } else {
+                    passwordField.attr("type", "password");
+                }
+            });
+        });
+
         function confirmPassword() {
 
             let password = $("#password").val();
@@ -16,16 +47,16 @@
             if (password != passwordConfirm) {
                 $("#anotherPassword").css("display", "block");
                 $("#anotherPassword").text("비밀번호가 다릅니다.");
-                document.getElementById("signup").disabled = true;
-            } else {
+                document.getElementById("auth").disabled = true;
+            } else if (isDuplicate == false && password == passwordConfirm) {
                 $("#anotherPassword").css("display", "none");
-                document.getElementById("signup").disabled = false;
+                document.getElementById("auth").disabled = false;
             }
         }
 
         function changeEmail() {
             $("#isDuplicated").css("display", "none");
-            document.getElementById("signup").disabled = true;
+            document.getElementById("auth").disabled = true;
         }
 
         function checkDuplicated() {
@@ -33,35 +64,49 @@
             // const email = $("#email").val();
             const email = document.getElementById("email").value;
 
-            if(!email) {
+            if (!email) {
                 $("#isDuplicated").text("이메일을 입력해주세요.");
                 $("#isDuplicated").css("display", "block");
                 return;
             }
 
-            if(email.match(regExp) == null) {
+            if (email.match(regExp) == null) {
                 $("#isDuplicated").text("이메일을 형식으로 입력해주세요.");
                 $("#isDuplicated").css("display", "block");
                 return;
             }
 
             const data = {
-                email : email
+                email: email
             };
 
             $.ajax({
-                type : "post",
-                async : false,
-                url : "/member/checkEmail",
-                contentType : "application/json; charset=UTF-8",
-                data : JSON.stringify(data),
-                success : function (res) {
+                type: "post",
+                async: false,
+                url: "/member/checkEmail",
+                contentType: "application/json; charset=UTF-8",
+                data: JSON.stringify(data),
+                success: function (res) {
 
-                    if(res == true) {
+                    if (res == true) {
                         $("#isDuplicated").text("이메일 중복입니다. 다른 이메일을 사용해주세요.");
+
+                        isDuplicate = true;
                     } else {
                         $("#isDuplicated").text("사용 가능한 이메일입니다.");
-                        document.getElementById("signup").disabled = false;
+
+                        let password = $("#password").val();
+                        let passwordConfirm = $("#passwordConfirm").val();
+
+                        if (!password || !passwordConfirm) {
+                            document.getElementById("auth").disabled = true;
+                        }
+
+                        if (isDuplicate == false && password == passwordConfirm) {
+                            document.getElementById("auth").disabled = false;
+                        }
+
+                        isDuplicate = false;
                     }
                     $("#isDuplicated").css("display", "block");
                 }
@@ -70,7 +115,7 @@
 
         function findAddress() {
             new daum.Postcode({
-                oncomplete: function(data) {
+                oncomplete: function (data) {
                     // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
 
                     // 도로명 주소의 노출 규칙에 따라 주소를 표시한다.
@@ -80,15 +125,15 @@
 
                     // 법정동명이 있을 경우 추가한다. (법정리는 제외)
                     // 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
-                    if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
+                    if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
                         extraRoadAddr += data.bname;
                     }
                     // 건물명이 있고, 공동주택일 경우 추가한다.
-                    if(data.buildingName !== '' && data.apartment === 'Y'){
+                    if (data.buildingName !== '' && data.apartment === 'Y') {
                         extraRoadAddr += (extraRoadAddr !== '' ? ', ' + data.buildingName : data.buildingName);
                     }
                     // 표시할 참고항목이 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
-                    if(extraRoadAddr !== ''){
+                    if (extraRoadAddr !== '') {
                         extraRoadAddr = ' (' + extraRoadAddr + ')';
                     }
 
@@ -100,6 +145,46 @@
             }).open();
         }
 
+        function sendAuth() {
+            const email = document.getElementById("email").value;
+
+            const data = {
+                email: email
+            };
+
+            $.ajax({
+                type: "post",
+                async: false,
+                url: "/mail/sendAuth",
+                contentType: "application/json; charset=UTF-8",
+                data: JSON.stringify(data),
+                success: function (res) {
+                    setInterval("myTimer()", 1000);
+                    $("#authDiv").css("display", "block");
+                }
+            });
+
+        }
+
+        function myTimer() {
+            time = time - 1000; //1초씩 -
+            min = time/(60 * 1000); //분
+
+            if (sec > 0) {
+                sec = sec - 1;
+                $("#timer").text(Math.floor(min) + " : " + sec);
+            }
+
+            if (sec == 0) {
+                sec = 60;
+                $("#timer").text(Math.floor(min) + " : 00");
+            }
+
+            if(min == 0 && sec == 0) {
+                clearInterval(time);
+            }
+        }
+
     </script>
 
 </th:block>
@@ -108,7 +193,7 @@
 <th:block layout:fragment="css">
     <style>
         .form-control {
-            heigth : 30px;
+            heigth: 30px;
             font-size: 15px;
             margin-left: 100px;
         }
@@ -125,6 +210,10 @@
 
         label {
             margin-top: 10px;
+            margin-left: 100px;
+        }
+
+        .showPass {
             margin-left: 100px;
         }
 
@@ -145,18 +234,21 @@
         <div class="form-group">
             <label th:for="email">이메일</label>
             <input type="email" th:field="*{email}" class="form-control" placeholder="이메일을 입력해주세요" style="width: 300px" onchange="changeEmail()">
-            <button type="button" id="checkDuplicate" class="checkDuplicate" aria-label="checkDuplicate" onclick="checkDuplicated()">중복확인</button>
+            <button type="button" id="checkDuplicate" class="checkDuplicate" aria-label="checkDuplicate" onclick="checkDuplicated()">중복확인
+            </button>
             <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="fieldError">이메일</p>
             <span id="isDuplicated" class="isDuplicated" style="display: none"></span>
         </div>
         <div class="form-group">
             <label th:for="password">비밀번호</label>
             <input type="password" th:field="*{password}" class="form-control" placeholder="비밀번호" style="width: 300px">
+            <input type="checkbox" id="showPassword" class="showPass"> 비밀번호 표시
             <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="fieldError">비밀번호</p>
         </div>
         <div class="form-group">
             <label th:for="passwordConfirm">비밀번호 확인</label>
             <input type="password" th:field="*{passwordConfirm}" class="form-control" placeholder="비밀번호 확인" style="width: 300px" onchange="confirmPassword()">
+            <input type="checkbox" id="showPasswordConfirm" class="showPass"> 비밀번호 표시
             <p th:if="${#fields.hasErrors('passwordConfirm')}" th:errors="*{passwordConfirm}" class="fieldError">비밀번호 확인</p>
             <span id="anotherPassword" class="isDuplicated" style="display: none"></span>
         </div>
@@ -184,7 +276,22 @@
             <input type="text" th:field="*{detailAddress}" class="form-control" placeholder="상세주소" style="width: 1000px">
         </div>
         <div style="text-align: center">
-            <button type="submit" id="signup" class="btn btn-primary" disabled>회원가입</button>
+            <button type="button" id="auth" class="btn btn-primary" onclick="sendAuth()" disabled>인증번호 전송</button>
+            <div style="text-align: center; display: none" id="authDiv">
+                <label th:for="authCode" id="authCodeLabel">인증번호</label>
+                <input type="text" th:field="*{authCode}" class="form-control" placeholder="인증번호" style="width: 300px">인증번호
+                <p>
+                    <label th:for="Timer">남은 시간  </label>
+                    <input id="timer" type="text" value="" readonly/>
+                </p>
+                <p>
+                    <input type="button" id="resendButton">재전송
+                    <input type="button" id="checkAuth">확인
+                </p>
+            </div>
+        </div>
+        <div style="text-align: center">
+            <button type="submit" id="signup" class="btn btn-primary" disabled hidden>회원가입</button>
         </div>
     </form>
 

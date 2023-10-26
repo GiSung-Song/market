@@ -39,4 +39,6 @@ public class MemberSignUpReqDto {
     @Length(min = 5, max = 5, message = "우편번호는 5자리입니다.")
     public String zipCode;
 
+    public String authCode;
+
 }
