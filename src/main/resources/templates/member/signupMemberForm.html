@@ -10,7 +10,9 @@
     <script th:inline="javascript">
 
         let isDuplicate = true;
+        let isAuth = false;
 
+        let mytimer;
         let time = 180000; // 60 * 3 * 1000;
         let min = 3; //3분
         let sec = 60; //60초
@@ -48,15 +50,24 @@
                 $("#anotherPassword").css("display", "block");
                 $("#anotherPassword").text("비밀번호가 다릅니다.");
                 document.getElementById("auth").disabled = true;
+                document.getElementById("signup").disabled = true;
             } else if (isDuplicate == false && password == passwordConfirm) {
                 $("#anotherPassword").css("display", "none");
                 document.getElementById("auth").disabled = false;
+                document.getElementById("signup").disabled = false;
+            } else if (isDuplicate == false && isAuth == true) {
+                document.getElementById("auth").disabled = true;
+                document.getElementById("signup").disabled = false;
             }
         }
 
         function changeEmail() {
+            clearInterval(mytimer);
             $("#isDuplicated").css("display", "none");
             document.getElementById("auth").disabled = true;
+
+            $("#authDiv").css("display", "none");
+            document.getElementById("signup").disabled = true;
         }
 
         function checkDuplicated() {
@@ -104,6 +115,7 @@
 
                         if (isDuplicate == false && password == passwordConfirm) {
                             document.getElementById("auth").disabled = false;
+                            document.getElementById("signup").disabled = true;
                         }
 
                         isDuplicate = false;
@@ -159,20 +171,57 @@
                 contentType: "application/json; charset=UTF-8",
                 data: JSON.stringify(data),
                 success: function (res) {
-                    setInterval("myTimer()", 1000);
-                    $("#authDiv").css("display", "block");
+                    document.getElementById("auth").disalbe = true;
+                    callTimer();
                 }
             });
 
         }
 
-        function myTimer() {
+        function callTimer() {
+            $("#authDiv").css("display", "block");
+            mytimer = setInterval(timerFunction, 1000);
+        }
+
+        function reSend() {
+            clearInterval(mytimer);
+            document.getElementById("signup").disabled = true;
+            isAuth = false;
+
+            time = 180000;
+            min = 3;
+            sec = 60;
+
+            $("#authCode").val("");
+
+            if(isDuplicate == false) {
+                alert("인증번호를 재전송하였습니다.");
+                sendAuth();
+            } else {
+                alert("이메일 중복체크를 해주세요.");
+            }
+        }
+
+        function timerFunction() {
             time = time - 1000; //1초씩 -
             min = time/(60 * 1000); //분
 
             if (sec > 0) {
                 sec = sec - 1;
-                $("#timer").text(Math.floor(min) + " : " + sec);
+
+                if(sec.toString().length == 1) {
+                    $("#timer").text("0" + Math.floor(min) + " : 0" + sec);
+                } else {
+                    $("#timer").text("0" + Math.floor(min) + " : " + sec);
+                }
+            }
+
+            if (time == 0) {
+                clearInterval(mytimer);
+            }
+
+            if (isAuth == true) {
+                clearInterval(mytimer);
             }
 
             if (sec == 0) {
@@ -180,9 +229,49 @@
                 $("#timer").text(Math.floor(min) + " : 00");
             }
 
-            if(min == 0 && sec == 0) {
-                clearInterval(time);
+            if (sec == 0 && min == 0) {
+                clearInterval(mytimer);
             }
+        }
+
+        function checkAuthFunc() {
+
+            if (time == 0) {
+                alert("유효시간이 만료되었습니다.\n재전송 버튼을 눌러주세요.");
+                return;
+            }
+
+            const email = document.getElementById("email").value;
+            const authCode = document.getElementById("authCode").value;
+
+            const data = {
+                email: email,
+                authCode : authCode
+            };
+
+            $.ajax({
+                type: "post",
+                async: false,
+                url: "/mail/checkAuth",
+                contentType: "application/json; charset=UTF-8",
+                data: JSON.stringify(data),
+                success: function (res) {
+
+                    console.log("res : " + res);
+
+                    if(res == true) {
+                        isAuth = true;
+                        $("#isRight").hidden = true;
+                    } else {
+                        $("#isRight").hidden = false;
+                    }
+
+                    if(isAuth == true && isDuplicate == false) {
+                        document.getElementById("signup").disabled = false;
+                        document.getElementById("signup").hidden = false;
+                    }
+                }
+            });
         }
 
     </script>
@@ -278,15 +367,15 @@
         <div style="text-align: center">
             <button type="button" id="auth" class="btn btn-primary" onclick="sendAuth()" disabled>인증번호 전송</button>
             <div style="text-align: center; display: none" id="authDiv">
-                <label th:for="authCode" id="authCodeLabel">인증번호</label>
-                <input type="text" th:field="*{authCode}" class="form-control" placeholder="인증번호" style="width: 300px">인증번호
                 <p>
-                    <label th:for="Timer">남은 시간  </label>
-                    <input id="timer" type="text" value="" readonly/>
+                    남은시간 <label id="timer" type="text" value="" readonly/>
                 </p>
+                <input type="text" th:field="*{authCode}" class="form-control" placeholder="인증번호"
+                       style="width: 300px; margin-left: auto; margin-right: auto; display: inline-block; text-align: center">
                 <p>
-                    <input type="button" id="resendButton">재전송
-                    <input type="button" id="checkAuth">확인
+                    <input type="button" id="resendButton" value="재전송" style="margin-right: 5px; margin-top: 10px" onclick="reSend()">
+                    <input type="button" id="checkAuth" value="확인" style="margin-top: 10px" onclick="checkAuthFunc()">
+                    <span id="isRight" class="isRight" style="display: none">잘못된 인증번호입니다.</span>
                 </p>
             </div>
         </div>

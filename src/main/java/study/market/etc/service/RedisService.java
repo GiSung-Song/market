@@ -22,4 +22,14 @@ public class RedisService {
         Duration time = Duration.ofSeconds(seconds);
         valueOperations.set(key, value, time);
     }
+
+    public boolean matchKey(String key, String value) {
+        String getValue = getData(key);
+
+        if (getValue.equals(value)) {
+            return true;
+        }
+
+        return false;
+    }
 }

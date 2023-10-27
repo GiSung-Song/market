@@ -18,7 +18,6 @@ import study.market.member.service.MemberService;
 public class MemberController {
 
     private final MemberService memberService;
-    private final MailService mailService;
 
     @GetMapping("/signup")
     public String signupForm(@ModelAttribute("member") MemberSignUpReqDto dto) {
@@ -33,7 +32,7 @@ public class MemberController {
         }
 
         memberService.signUp(dto);
-        return "redirect:/mail/auth";
+        return "redirect:/";
     }
 
     @ResponseBody

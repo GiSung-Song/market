@@ -1,11 +1,9 @@
 package study.market.etc.controller;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import study.market.etc.dto.MailKeyReqDto;
 import study.market.etc.service.MailService;
 import study.market.etc.service.RedisService;
 import study.market.member.dto.MemberSignUpReqDto;
@@ -29,14 +27,11 @@ public class MailController {
         return "ok";
     }
 
-    @PostMapping("/auth")
-    public String matchKeyAndSignUp(@ModelAttribute("dto") MailKeyReqDto dto) {
+    @ResponseBody
+    @PostMapping("/checkAuth")
+    public boolean matchKeyAndSignUp(@RequestBody MemberSignUpReqDto dto) {
 
-        if(!redisService.getData(dto.getEmail()).equals(dto.getAuthKey())) {
-            return "/mail/mailAuthForm";
-        }
-
-        return "redirect:/";
+        return redisService.matchKey(dto.getEmail(), dto.getAuthCode());
 
     }
 

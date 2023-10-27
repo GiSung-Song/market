@@ -32,7 +32,7 @@ public class MemberServiceImpl implements MemberService {
                 .address(dto.getAddress())
                 .detailAddress(dto.getDetailAddress())
                 .zipCode(dto.getZipCode())
-                .memberStatus(MemberStatus.NON) //인증받기 전 이므로 NON
+                .memberStatus(MemberStatus.ACTIVE)
                 .role(Role.USER)
                 .build();
 
