@@ -1,8 +1,13 @@
 package study.market.member.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import study.market.etc.config.CustomUserDetails;
 import study.market.member.MemberStatus;
 import study.market.member.Role;
 import study.market.member.dto.MemberSignUpReqDto;
@@ -17,16 +22,17 @@ import study.market.member.repository.MemberRepository;
 
 @Service
 @RequiredArgsConstructor
-public class MemberServiceImpl implements MemberService {
+public class MemberServiceImpl implements MemberService, UserDetailsService {
 
     private final MemberRepository memberRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Transactional
     @Override
     public Long signUp(MemberSignUpReqDto dto) {
         Member member = Member.builder()
                 .email(dto.getEmail())
-                .password(dto.getPassword())
+                .password(passwordEncoder.encode(dto.getPassword()))
                 .name(dto.getName())
                 .phoneNumber(dto.getPhoneNumber())
                 .address(dto.getAddress())
@@ -56,5 +62,17 @@ public class MemberServiceImpl implements MemberService {
         memberRepository.save(member);
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public UserDetails loadUserByUsername(String email) {
 
+        Member member = memberRepository.findByEmail(email);
+
+        if (member == null) {
+            throw new UsernameNotFoundException("해당 이메일로 가입된 정보가 없습니다.");
+        }
+
+        return new CustomUserDetails(member);
+
+    }
 }
