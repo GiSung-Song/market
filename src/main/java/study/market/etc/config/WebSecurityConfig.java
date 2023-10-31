@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -17,7 +18,6 @@ import org.springframework.security.web.SecurityFilterChain;
 public class WebSecurityConfig {
 
     private final UserDetailsService userService;
-    private final CustomAuthFailureHandler failureHandler;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     // 스프링 시큐리티 적용X
@@ -38,7 +38,7 @@ public class WebSecurityConfig {
                         .loginPage("/member/login")
                         .usernameParameter("email")
                         .defaultSuccessUrl("/")
-                        .failureHandler(failureHandler))
+                        .failureHandler(authenticationFailureHandler()))
                 .logout(logout -> logout
                         .logoutSuccessUrl("/member/login")
                         .invalidateHttpSession(true))
@@ -55,6 +55,11 @@ public class WebSecurityConfig {
         daoAuthenticationProvider.setPasswordEncoder(bCryptPasswordEncoder);
 
         return daoAuthenticationProvider;
+    }
+
+    @Bean
+    public AuthenticationFailureHandler authenticationFailureHandler() {
+        return new CustomAuthFailureHandler();
     }
 
 }

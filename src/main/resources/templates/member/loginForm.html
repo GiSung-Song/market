@@ -30,7 +30,7 @@
         <button type="button" class="btn btn-primary" onClick="location.href='/member/signup'">회원가입</button>
         <button type="button" class="btn btn-primary" onClick="location.href='/member/findId'">아이디 찾기(추후예정)</button>
         <button type="button" class="btn btn-primary" onClick="location.href='/member/findPw'">비밀번호 찾기(추후예정)</button>
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}">
     </form>
 
 </div>
