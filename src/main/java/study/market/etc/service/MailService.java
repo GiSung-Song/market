@@ -16,11 +16,28 @@ public class MailService {
     private final JavaMailSender mailSender;
     private final RedisService redisService;
 
-    public void sendMail(String email) {
+    public void sendAuth(String email) {
 
         String subject = "[아무거나 골라서 시켜] 인증번호";
-        String tmpKey = getTempKey();
+        String tmpKey = getTempKey(6);
 
+        sendMail(email, subject, tmpKey);
+
+        //5분 제한
+        redisService.setDataExpire(email, tmpKey, 60 * 3L);
+    }
+
+    public String sendTemPass(String email) {
+
+        String subject = "[아무거나 골라서 시켜] 임시 비밀번호";
+        String tmpPass = getTempKey(8);
+
+        sendMail(email, subject, tmpPass);
+
+        return tmpPass;
+    }
+
+    private void sendMail(String email, String subject, String contents) {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
 
         try {
@@ -28,19 +45,16 @@ public class MailService {
 
             mimeMessageHelper.setTo(email);
             mimeMessageHelper.setSubject(subject);
-            mimeMessageHelper.setText(tmpKey);
+            mimeMessageHelper.setText(contents);
 
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
-
-        //5분 제한
-        redisService.setDataExpire(email, tmpKey, 60 * 3L);
     }
 
-    private String getTempKey() {
-        char[] tmp = new char[6];
+    private String getTempKey(int length) {
+        char[] tmp = new char[length];
 
         for(int i=0; i<tmp.length; i++) {
             int div = (int) Math.floor(Math.random() * 2);

@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import study.market.etc.entity.BaseTimeEntity;
 import study.market.member.MemberStatus;
 import study.market.member.Role;
@@ -25,7 +24,6 @@ import study.market.member.Role;
 @Getter
 @NoArgsConstructor
 @Entity
-@Slf4j
 public class Member extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -83,11 +81,6 @@ public class Member extends BaseTimeEntity {
         this.address = address;
         this.detailAddress = detailAddress;
         this.zipCode = zipCode;
-    }
-
-    //핸드폰 번호 변경
-    public void editPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
     }
 
 }

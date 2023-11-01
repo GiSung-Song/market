@@ -6,7 +6,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import study.market.etc.service.MailService;
 import study.market.etc.service.RedisService;
+import study.market.member.dto.MemberFindPwReqDto;
 import study.market.member.dto.MemberSignUpReqDto;
+import study.market.member.service.MemberService;
 
 @Slf4j
 @Controller
@@ -15,6 +17,7 @@ import study.market.member.dto.MemberSignUpReqDto;
 public class MailController {
 
     private final MailService mailService;
+    private final MemberService memberService;
     private final RedisService redisService;
 
     @ResponseBody
@@ -22,7 +25,7 @@ public class MailController {
     public String sendAuthKey(@RequestBody MemberSignUpReqDto dto) {
 
         log.info("email : {}", dto.getEmail());
-        mailService.sendMail(dto.getEmail());
+        mailService.sendAuth(dto.getEmail());
 
         return "ok";
     }
@@ -33,6 +36,16 @@ public class MailController {
 
         return redisService.matchKey(dto.getEmail(), dto.getAuthCode());
 
+    }
+
+    @ResponseBody
+    @PostMapping("/sendTempPass")
+    public void sendTempPass(@RequestBody MemberFindPwReqDto dto) {
+
+        log.info("email : {}", dto.getEmail());
+        String tmpPass = mailService.sendTemPass(dto.getEmail());
+
+        memberService.editPassword(dto.getEmail(), tmpPass);
     }
 
 }

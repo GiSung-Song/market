@@ -93,7 +93,6 @@
 
             $.ajax({
                 type: "post",
-                async: false,
                 url: "/member/checkEmail",
                 contentType: "application/json; charset=UTF-8",
                 data: JSON.stringify(data),
@@ -166,7 +165,6 @@
 
             $.ajax({
                 type: "post",
-                async: false,
                 url: "/mail/sendAuth",
                 contentType: "application/json; charset=UTF-8",
                 data: JSON.stringify(data),
@@ -251,7 +249,6 @@
 
             $.ajax({
                 type: "post",
-                async: false,
                 url: "/mail/checkAuth",
                 contentType: "application/json; charset=UTF-8",
                 data: JSON.stringify(data),

@@ -10,9 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 import study.market.etc.config.CustomUserDetails;
 import study.market.member.MemberStatus;
 import study.market.member.Role;
+import study.market.member.dto.MemberFindPwReqDto;
 import study.market.member.dto.MemberSignUpReqDto;
 import study.market.member.entity.Member;
 import study.market.member.repository.MemberRepository;
+
+import java.util.NoSuchElementException;
 
 /**
  * signUp : 회원가입(회원가입 폼 dto)
@@ -55,10 +58,14 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
 
     @Transactional
     @Override
-    public void editPassword(Long id, String password) {
-        Member member = memberRepository.findById(id).get();
+    public void editPassword(String email, String password) {
+        Member member = memberRepository.findByEmail(email);
 
-        member.editPassword(password);
+        if (member == null) {
+            throw new NoSuchElementException("해당 메일로 가입된 정보가 없습니다.");
+        }
+
+        member.editPassword(passwordEncoder.encode(password));
         memberRepository.save(member);
     }
 
@@ -74,5 +81,14 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
 
         return new CustomUserDetails(member);
 
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public boolean isExistMember(MemberFindPwReqDto dto) {
+
+        Member findMember = memberRepository.findByEmailAndName(dto.getEmail(), dto.getName());
+
+        return findMember != null ? true : false;
     }
 }
