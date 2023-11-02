@@ -56,7 +56,7 @@ class MemberServiceTest {
         Long savedMemberId = memberService.signUp(dto);
 
         String newPassword = "test1235";
-        memberService.editPassword(savedMemberId, newPassword);
+        memberService.editPassword(dto.getEmail(), newPassword);
 
        Member member = memberRepository.findById(savedMemberId).get();
        assertThat(member.getPassword()).isEqualTo(newPassword);
