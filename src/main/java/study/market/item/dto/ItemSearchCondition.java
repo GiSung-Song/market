@@ -10,7 +10,7 @@ import study.market.item.ItemType;
 public class ItemSearchCondition {
 
     private String itemName;
-    private int price;
+    private String orderPrice;
     private ItemStatus itemStatus;
     private ItemType itemType;
 

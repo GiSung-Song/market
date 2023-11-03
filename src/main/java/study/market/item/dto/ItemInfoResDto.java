@@ -1,5 +1,6 @@
 package study.market.item.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,4 +22,12 @@ public class ItemInfoResDto {
 
     private int stock;
 
+    @Builder
+    public ItemInfoResDto(ItemType itemType, ItemStatus itemStatus, String itemName, int price, int stock) {
+        this.itemType = itemType;
+        this.itemStatus = itemStatus;
+        this.itemName = itemName;
+        this.price = price;
+        this.stock = stock;
+    }
 }
