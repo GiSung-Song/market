@@ -22,7 +22,7 @@ import study.market.item.ItemType;
 @Entity
 public class Item {
 
-    @Id
+    @Id @Column(name = "item_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
