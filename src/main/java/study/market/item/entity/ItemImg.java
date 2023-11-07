@@ -26,12 +26,16 @@ public class ItemImg {
     private String imgUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id")
     private Item item;
 
-    @Builder
     public void uploadItemImg(String oriImgName, String imgName, String imgUrl) {
         this.oriImgName = oriImgName;
         this.imgName = imgName;
         this.imgUrl = imgUrl;
+    }
+
+    public void setItem(Item item) {
+        this.item = item;
     }
 }

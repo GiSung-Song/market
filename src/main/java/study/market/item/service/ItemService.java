@@ -1,18 +1,18 @@
 package study.market.item.service;
 
-import study.market.item.dto.ItemInfoResDto;
-import study.market.item.dto.ItemModifyReqDto;
-import study.market.item.dto.ItemRegisterReqDto;
+import org.springframework.web.multipart.MultipartFile;
+import study.market.item.dto.ItemFormDto;
 import study.market.item.dto.ItemSearchCondition;
 import study.market.item.entity.Item;
 
+import java.nio.file.NoSuchFileException;
 import java.util.List;
 
 public interface ItemService {
 
-    Long registerItem(ItemRegisterReqDto dto);
-    void modifyItem(ItemModifyReqDto dto);
-    void removeItem(Long itemId);
-    ItemInfoResDto getItemInfo(Long itemId);
+    Long registerItem(ItemFormDto dto, List<MultipartFile> itemImgList) throws Exception;
+    void modifyItem(ItemFormDto dto, List<MultipartFile> itemImgList) throws Exception;
+    void removeItem(Long itemId) throws NoSuchFileException;
+    ItemFormDto getItemInfo(Long itemId);
     List<Item> getItemAllList(ItemSearchCondition condition);
 }

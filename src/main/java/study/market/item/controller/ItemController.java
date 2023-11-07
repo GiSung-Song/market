@@ -6,7 +6,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import study.market.item.dto.ItemRegisterReqDto;
+import study.market.item.dto.ItemFormDto;
+import study.market.item.service.ItemService;
 
 @Controller
 @RequiredArgsConstructor
@@ -14,10 +15,12 @@ import study.market.item.dto.ItemRegisterReqDto;
 @RequestMapping("/item")
 public class ItemController {
 
-    @GetMapping("/register")
-    public String registerItemForm(@ModelAttribute("item") ItemRegisterReqDto dto) {
+    private final ItemService itemService;
 
-        return "itemForm";
+    @GetMapping("/register")
+    public String registerItemForm(@ModelAttribute("item") ItemFormDto dto) {
+
+        return "/item/itemForm";
     }
 
 }
