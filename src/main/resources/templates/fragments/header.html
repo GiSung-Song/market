@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 
 <div th:fragment="header">
     <nav class="navbar navbar-expand-sm bg-primary navbar-dark">
@@ -25,11 +25,11 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="">로그인</a>
+                    <a class="nav-link" href="/member/login" sec:authorize="isAnonymous()">로그인</a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="">로그아웃</a>
+                    <a class="nav-link" href="/logout" sec:authorize="isAuthenticated()">로그아웃</a>
                 </li>
             </ul>
             <form class="form-inline my-2 my-lg-0" th:action="@{/}" method="get">

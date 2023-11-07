@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import study.market.member.Role;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -32,7 +33,9 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/member/login", "/", "/member/signup","/member/findPw", "/member/checkEmail", "/mail/**").permitAll()
+                        .requestMatchers("/member/login", "/", "/member/signup",
+                                "/member/findPw", "/member/checkEmail", "/mail/**").permitAll()
+                        .requestMatchers("/admin/**").hasAnyRole(Role.ADMIN.toString())
                         .anyRequest().authenticated())
                 .formLogin(login -> login
                         .loginPage("/member/login")
@@ -40,6 +43,7 @@ public class WebSecurityConfig {
                         .defaultSuccessUrl("/")
                         .failureHandler(authenticationFailureHandler()))
                 .logout(logout -> logout
+                        .logoutUrl("/logout")
                         .logoutSuccessUrl("/member/login")
                         .invalidateHttpSession(true))
                 .csrf(csrf -> csrf
