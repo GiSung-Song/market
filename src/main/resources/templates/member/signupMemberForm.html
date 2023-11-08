@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout}">
+
 <!-- 사용자 스크립트 추가 -->
 <th:block layout:fragment="script">
 
@@ -253,8 +254,6 @@
                 contentType: "application/json; charset=UTF-8",
                 data: JSON.stringify(data),
                 success: function (res) {
-
-                    console.log("res : " + res);
 
                     if(res == true) {
                         isAuth = true;

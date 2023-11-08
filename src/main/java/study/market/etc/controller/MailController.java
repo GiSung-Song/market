@@ -45,7 +45,7 @@ public class MailController {
         log.info("email : {}", dto.getEmail());
         String tmpPass = mailService.sendTemPass(dto.getEmail());
 
-        memberService.editPassword(dto.getEmail(), tmpPass);
+        memberService.editTmpPassword(dto.getEmail(), tmpPass);
     }
 
 }

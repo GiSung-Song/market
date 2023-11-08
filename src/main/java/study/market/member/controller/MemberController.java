@@ -7,12 +7,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import study.market.member.dto.MemberEditPasswordReqDto;
 import study.market.member.dto.MemberFindPwReqDto;
+import study.market.member.dto.MemberFormDto;
 import study.market.member.dto.MemberSignUpReqDto;
 import study.market.member.service.MemberService;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.security.Principal;
 
 @Slf4j
 @Controller
@@ -59,22 +62,53 @@ public class MemberController {
     }
 
     @GetMapping("/findPw")
-    public String findIdForm(@RequestParam(value = "exist", required = false) String exist,
-                             @RequestParam(value = "message", required = false) String message,
-                             Model model, @ModelAttribute("member") MemberFindPwReqDto dto) {
-
-        model.addAttribute("exist", exist);
-        model.addAttribute("message", message);
-
+    public String findPwForm(@ModelAttribute("member") MemberFindPwReqDto dto) {
         return "/member/findPwForm";
     }
 
     @PostMapping("/findPw")
     @ResponseBody
-    public Boolean findId(@RequestBody MemberFindPwReqDto dto) {
+    public Boolean findPw(@RequestBody MemberFindPwReqDto dto) {
 
         log.info("email : {}, name : {}", dto.getEmail(), dto.getName());
         return memberService.isExistMember(dto);
     }
 
+    @GetMapping("/info")
+    public String memberInfoForm(Principal principal, Model model) {
+
+        String email = principal.getName(); //현재 로그인 한 계정의 이메일
+
+        MemberFormDto member = memberService.getMemberInfo(email);
+        model.addAttribute("member", member);
+
+        return "/member/infoMemberForm";
+    }
+
+    @PostMapping("/info")
+    public String editMemberInfo(@Valid @ModelAttribute("member") MemberFormDto dto, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            return "/member/infoMemberForm";
+        }
+
+        memberService.editMember(dto);
+
+        return "redirect:/member/info";
+    }
+
+    @GetMapping("/editPw")
+    public String editPasswordForm(@ModelAttribute("member") MemberEditPasswordReqDto dto) {
+        return "/member/editPasswordForm";
+    }
+
+    @PostMapping("/editPw")
+    @ResponseBody
+    public Boolean editPassword(@RequestBody MemberEditPasswordReqDto dto, Principal principal) {
+        String email = principal.getName();
+
+        log.info("email : {}, nowPassword : {}, password : {}", email, dto.getNowPassword(), dto.getPassword());
+
+        return memberService.editPassword(email, dto);
+    }
 }

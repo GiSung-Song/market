@@ -10,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import study.market.etc.config.CustomUserDetails;
 import study.market.member.MemberStatus;
 import study.market.member.Role;
+import study.market.member.dto.MemberEditPasswordReqDto;
 import study.market.member.dto.MemberFindPwReqDto;
+import study.market.member.dto.MemberFormDto;
 import study.market.member.dto.MemberSignUpReqDto;
 import study.market.member.entity.Member;
 import study.market.member.repository.MemberRepository;
@@ -58,7 +60,7 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
 
     @Transactional
     @Override
-    public void editPassword(String email, String password) {
+    public void editTmpPassword(String email, String password) {
         Member member = memberRepository.findByEmail(email);
 
         if (member == null) {
@@ -66,7 +68,27 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
         }
 
         member.editPassword(passwordEncoder.encode(password));
-        memberRepository.save(member);
+    }
+
+    @Transactional
+    @Override
+    public boolean editPassword(String email, MemberEditPasswordReqDto dto) {
+
+        Member member = memberRepository.findByEmail(email);
+
+        if (member == null) {
+            throw new NoSuchElementException("해당 메일로 가입된 정보가 없습니다.");
+        }
+
+        //입력받은 현재 비밀번호가 맞는지 검사
+        boolean matches = passwordEncoder.matches(dto.getNowPassword(), member.getPassword());
+
+        if (matches == true) {
+            member.editPassword(passwordEncoder.encode(dto.getPassword())); //새로운 비밀번호로 변경
+            return true;
+        }
+
+        return false;
     }
 
     @Transactional(readOnly = true)
@@ -90,5 +112,39 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
         Member findMember = memberRepository.findByEmailAndName(dto.getEmail(), dto.getName());
 
         return findMember != null ? true : false;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public MemberFormDto getMemberInfo(String email) {
+
+        Member findMember = memberRepository.findByEmail(email);
+
+        if (findMember == null) {
+            throw new UsernameNotFoundException("등록된 회원이 없습니다.");
+        }
+
+        return MemberFormDto.builder()
+                .email(findMember.getEmail())
+                .name(findMember.getName())
+                .phoneNumber(findMember.getPhoneNumber())
+                .address(findMember.getAddress())
+                .detailAddress(findMember.getDetailAddress())
+                .zipCode(findMember.getZipCode())
+                .build();
+    }
+
+    @Transactional
+    @Override
+    public void editMember(MemberFormDto dto) {
+
+        Member findMember = memberRepository.findByEmail(dto.getEmail());
+
+        if (findMember == null) {
+            throw new UsernameNotFoundException("등록된 회원이 없습니다.");
+        }
+
+        //회원정보 수정
+        findMember.editInfo(dto.getPhoneNumber(), dto.getAddress(), dto.getDetailAddress(), dto.getZipCode());
     }
 }
