@@ -10,9 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class MemberEditPasswordReqDto {
 
-    @NotBlank
-    public String password;
+    public String nowPassword;
 
-    @NotBlank
-    public String confirmPassword;
+    public String password;
 }

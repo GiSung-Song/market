@@ -77,11 +77,14 @@ public class Member extends BaseTimeEntity {
         this.password = password;
     }
 
-    //주소 변경
-    public void editAddress(String address, String detailAddress, String zipCode) {
+    //회원 정보 변경
+    public void editInfo(String phoneNumber, String address, String detailAddress, String zipCode) {
+        this.phoneNumber = phoneNumber;
         this.address = address;
         this.detailAddress = detailAddress;
         this.zipCode = zipCode;
     }
+
+
 
 }

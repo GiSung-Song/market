@@ -3,10 +3,7 @@ package study.market.item.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import study.market.item.dto.ItemInfoResDto;
-import study.market.item.dto.ItemModifyReqDto;
-import study.market.item.dto.ItemRegisterReqDto;
-import study.market.item.dto.ItemSearchCondition;
+import study.market.item.dto.*;
 import study.market.item.entity.Item;
 import study.market.item.repository.ItemQueryRepository;
 import study.market.item.repository.ItemRepository;
@@ -23,7 +20,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional
     @Override
-    public Long registerItem(ItemRegisterReqDto dto) {
+    public Long registerItem(ItemFormDto dto) {
 
         Item item = Item.builder()
                 .itemType(dto.getItemType())
@@ -38,7 +35,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional
     @Override
-    public void modifyItem(ItemModifyReqDto dto) {
+    public void modifyItem(ItemFormDto dto) {
         Item item = itemRepository.findByItemName(dto.getItemName());
 
         if (item == null) {

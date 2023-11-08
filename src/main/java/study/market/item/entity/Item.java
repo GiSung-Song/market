@@ -27,19 +27,16 @@ public class Item {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private ItemType itemType;
 
     @Column(nullable = false, unique = true)
     private String itemName;
 
-    @Column(nullable = false)
     private int price;
 
-    @Column(nullable = false)
     private int stock;
 
-    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private ItemStatus itemStatus;
 
     @Builder

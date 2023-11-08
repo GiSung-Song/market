@@ -6,10 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import study.market.item.ItemStatus;
 import study.market.item.ItemType;
-import study.market.item.dto.ItemInfoResDto;
-import study.market.item.dto.ItemModifyReqDto;
-import study.market.item.dto.ItemRegisterReqDto;
-import study.market.item.dto.ItemSearchCondition;
+import study.market.item.dto.*;
 import study.market.item.entity.Item;
 import study.market.item.repository.ItemRepository;
 
@@ -31,7 +28,7 @@ class ItemServiceTest {
 
     @Test
     void save_item() {
-        ItemRegisterReqDto dto = new ItemRegisterReqDto();
+        ItemFormDto dto = new ItemFormDto();
         dto.setItemName("음료수");
         dto.setItemType(ItemType.DRINK);
         dto.setItemStatus(ItemStatus.SELL);
@@ -47,7 +44,7 @@ class ItemServiceTest {
 
     @Test
     void remove_item() {
-        ItemRegisterReqDto dto = new ItemRegisterReqDto();
+        ItemFormDto dto = new ItemFormDto();
         dto.setItemName("음료수");
         dto.setItemType(ItemType.DRINK);
         dto.setItemStatus(ItemStatus.SELL);
@@ -65,7 +62,7 @@ class ItemServiceTest {
 
     @Test
     void modify_item() {
-        ItemRegisterReqDto dto = new ItemRegisterReqDto();
+        ItemFormDto dto = new ItemFormDto();
         dto.setItemName("음료수");
         dto.setItemType(ItemType.DRINK);
         dto.setItemStatus(ItemStatus.SELL);
@@ -74,7 +71,7 @@ class ItemServiceTest {
 
         Long saveId = itemService.registerItem(dto);
 
-        ItemModifyReqDto modifyReqDto = new ItemModifyReqDto();
+        ItemFormDto modifyReqDto = new ItemFormDto();
         modifyReqDto.setItemName("음료수");
         modifyReqDto.setItemStatus(ItemStatus.RECEIVING);
 

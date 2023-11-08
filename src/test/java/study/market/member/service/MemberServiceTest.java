@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import study.market.member.dto.MemberEditPasswordReqDto;
 import study.market.member.dto.MemberSignUpReqDto;
 import study.market.member.entity.Member;
 import study.market.member.repository.MemberRepository;
@@ -19,6 +21,9 @@ class MemberServiceTest {
 
     @Autowired
     MemberRepository memberRepository;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @Test
     void save() {
@@ -51,15 +56,34 @@ class MemberServiceTest {
     }
 
     @Test
-    void editPassword() {
+    void editTmpPassword() {
         MemberSignUpReqDto dto = getDto();
         Long savedMemberId = memberService.signUp(dto);
 
         String newPassword = "test1235";
-        memberService.editPassword(dto.getEmail(), newPassword);
+        memberService.editTmpPassword(dto.getEmail(), newPassword);
 
        Member member = memberRepository.findById(savedMemberId).get();
        assertThat(member.getPassword()).isEqualTo(newPassword);
+        assertThat(member.getId()).isEqualTo(savedMemberId);
+
+    }
+
+    @Test
+    void editPassword() {
+        MemberSignUpReqDto dto = getDto();
+        Long savedMemberId = memberService.signUp(dto);
+
+        MemberEditPasswordReqDto newDto = new MemberEditPasswordReqDto();
+        newDto.setNowPassword("test1234");
+        newDto.setPassword("test1235");
+
+        memberService.editPassword(dto.getEmail(), newDto);
+
+        Member member = memberRepository.findById(savedMemberId).get();
+        boolean matches = passwordEncoder.matches("test1235", member.getPassword());
+
+        assertThat(matches).isTrue();
         assertThat(member.getId()).isEqualTo(savedMemberId);
 
     }
@@ -71,6 +95,7 @@ class MemberServiceTest {
         dto.setName("테스터");
         dto.setPhoneNumber("010-1234-5678");
         dto.setAddress("서울시 도봉구 방학로 200");
+        dto.setDetailAddress("115동 413호");
         dto.setZipCode("13579");
 
         return dto;
