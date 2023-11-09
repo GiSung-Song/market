@@ -1,10 +1,12 @@
 package study.market.item.dto;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import study.market.etc.annotation.ValidEnum;
 import study.market.item.ItemStatus;
 import study.market.item.ItemType;
 
@@ -15,23 +17,24 @@ public class ItemFormDto {
 
     private Long id;
 
-    @NotBlank(message = "카테고리는 필수 입력 값 입니다.")
+    @ValidEnum(enumClass = ItemType.class, message = "아이템 카테고리를 선택해주세요.")
     private ItemType itemType;
 
-    @NotBlank(message = "상태는 필수 입력 값 입니다.")
+    @ValidEnum(enumClass = ItemStatus.class, message = "아이템 재고 상황을 선택해주세요.")
     private ItemStatus itemStatus;
 
     @NotBlank(message = "상품명은 필수 입력 값 입니다.")
     private String itemName;
 
-    @NotBlank(message = "상품 가격은 필수 입력 값 입니다.")
+    @DecimalMin(value = "1", message = "가격은 1원 이상이어야 합니다.")
     private int price;
 
-    @NotBlank(message = "재고 수량은 필수 입력 값 입니다.")
+    @DecimalMin(value = "0", message = "재고는 0 이상이어야 합니다.")
     private int stock;
 
     @Builder
-    public ItemFormDto(ItemType itemType, ItemStatus itemStatus, String itemName, int price, int stock) {
+    public ItemFormDto(Long id, ItemType itemType, ItemStatus itemStatus, String itemName, int price, int stock) {
+        this.id = id;
         this.itemType = itemType;
         this.itemStatus = itemStatus;
         this.itemName = itemName;

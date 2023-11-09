@@ -1,6 +1,23 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://ultraq.net.nz/thymeleaf/layout">
+<style>
+    html,
+    body {
+        height: 100%;
+    }
+    .wrap {
+        position: relative;
+        min-height: 100%;
+        padding-bottom: 50px;
+    }
+    .footer {
+        position: absolute;
+        bottom: 0;
+        text-align: center;
+        width: 100%;
+    }
+</style>
 <head>
     <meta charset="UTF-8">
     <title>아무거나 골라서 시켜</title>
@@ -15,12 +32,12 @@
     <th:block layout:fragment="css"></th:block>
 </head>
 <body>
+<div class="wrap">
+    <div th:replace="~{fragments/header::header}"></div>
 
-<div th:replace="~{fragments/header::header}"></div>
+    <div layout:fragment="content" class="content"></div>
 
-<div layout:fragment="content" class="content" style="margin-bottom: 100px"></div>
-
-<div th:replace="~{fragments/footer::footer}"></div>
-
+    <div th:replace="~{fragments/footer::footer}" class="footer"></div>
+</div>
 </body>
 </html>

@@ -2,6 +2,6 @@ package study.market.item;
 
 public enum ItemStatus {
 
-    SELL, SOLD_OUT, RECEIVING
+    SELL, SOLD_OUT, RECEIVING, STOP_SELL
 
 }

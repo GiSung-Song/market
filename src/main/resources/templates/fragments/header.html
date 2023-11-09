@@ -12,12 +12,21 @@
 
         <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
             <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/item/register" sec:authorize="hasAuthority('ADMIN')">상품 등록</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="" sec:authorize="hasAuthority('ADMIN')">주문 현황</a>
+                </li>
+
                 <li class="nav-item">
                     <a class="nav-link" href="">상품</a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="">장바구니</a>
+                    <a class="nav-link" href="" sec:authorize="hasAuthority('USER')">장바구니</a>
                 </li>
 
                 <li class="nav-item">

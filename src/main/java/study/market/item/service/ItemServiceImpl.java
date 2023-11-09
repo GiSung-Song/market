@@ -42,9 +42,7 @@ public class ItemServiceImpl implements ItemService {
             throw new NoSuchElementException("해당 이름으로 등록 된 상품이 없습니다.");
         }
 
-        item.editItem(dto.getItemStatus(), item.getPrice(), item.getStock());
-
-        itemRepository.save(item);
+        item.editItem(dto.getItemType(), dto.getItemStatus(), dto.getPrice(), dto.getStock());
     }
 
     @Transactional
@@ -55,11 +53,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemInfoResDto getItemInfo(Long itemId) {
+    public ItemFormDto getItemInfo(Long itemId) {
 
         Item item = itemRepository.findById(itemId).orElseThrow(NoSuchElementException::new);
 
-        return ItemInfoResDto.builder()
+        return ItemFormDto.builder()
+                .id(item.getId())
                 .itemName(item.getItemName())
                 .itemStatus(item.getItemStatus())
                 .itemType(item.getItemType())
@@ -72,7 +71,5 @@ public class ItemServiceImpl implements ItemService {
     public List<Item> getItemAllList(ItemSearchCondition condition) {
         return itemQueryRepository.findAll(condition);
     }
-
-
 
 }
