@@ -48,7 +48,8 @@ public class Item {
         this.itemStatus = itemStatus;
     }
 
-    public void editItem(ItemStatus itemStatus, int price, int stock) {
+    public void editItem(ItemType itemType, ItemStatus itemStatus, int price, int stock) {
+        this.itemType = itemType;
         this.itemStatus = itemStatus;
         this.price = price;
         this.stock = stock;

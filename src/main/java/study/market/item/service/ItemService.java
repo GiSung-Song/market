@@ -10,6 +10,6 @@ public interface ItemService {
     Long registerItem(ItemFormDto dto);
     void modifyItem(ItemFormDto dto);
     void removeItem(Long itemId);
-    ItemInfoResDto getItemInfo(Long itemId);
+    ItemFormDto getItemInfo(Long itemId);
     List<Item> getItemAllList(ItemSearchCondition condition);
 }

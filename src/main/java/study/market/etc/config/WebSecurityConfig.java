@@ -34,7 +34,7 @@ public class WebSecurityConfig {
         return http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/member/login", "/", "/member/signup",
-                                "/member/findPw", "/member/checkEmail", "/mail/**").permitAll()
+                                "/member/findPw", "/member/checkEmail", "/mail/**", "/item/**").permitAll()
                         .requestMatchers("/admin/**").hasAuthority(Role.ADMIN.toString())
                         .anyRequest().authenticated())
                 .formLogin(login -> login

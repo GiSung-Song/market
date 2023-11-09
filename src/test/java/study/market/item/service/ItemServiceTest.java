@@ -134,7 +134,7 @@ class ItemServiceTest {
 
         Item savedItem = itemRepository.save(goods);
 
-        ItemInfoResDto itemInfo = itemService.getItemInfo(savedItem.getId());
+        ItemFormDto itemInfo = itemService.getItemInfo(savedItem.getId());
 
         assertThat(itemInfo.getItemName()).isEqualTo(goods.getItemName());
     }
