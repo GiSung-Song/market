@@ -1,6 +1,9 @@
 package study.market.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import study.market.item.dto.*;
@@ -8,6 +11,7 @@ import study.market.item.entity.Item;
 import study.market.item.repository.ItemQueryRepository;
 import study.market.item.repository.ItemRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -72,4 +76,25 @@ public class ItemServiceImpl implements ItemService {
         return itemQueryRepository.findAll(condition);
     }
 
+    @Override
+    public Page<ItemFormDto> getItemAllPage(Pageable pageable) {
+
+        Page<Item> items = itemRepository.findAll(pageable);
+        List<ItemFormDto> itemFormDtoList = new ArrayList<>();
+
+        for (Item item : items) {
+            ItemFormDto dto = ItemFormDto.builder()
+                    .id(item.getId())
+                    .itemType(item.getItemType())
+                    .itemStatus(item.getItemStatus())
+                    .itemName(item.getItemName())
+                    .price(item.getPrice())
+                    .stock(item.getStock())
+                    .build();
+
+            itemFormDtoList.add(dto);
+        }
+
+        return new PageImpl<>(itemFormDtoList, pageable, items.getTotalElements());
+    }
 }
