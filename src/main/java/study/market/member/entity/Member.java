@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 import study.market.etc.entity.BaseTimeEntity;
 import study.market.member.MemberStatus;
 import study.market.member.Role;
+import study.market.order.entity.Order;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 회원 테이블
@@ -58,6 +62,9 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private Role role;
 
+    @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
+    private List<Order> orders = new ArrayList<>();
+
     @Builder
     public Member(String email, String password, String name, String phoneNumber, String address, String detailAddress, String zipCode, MemberStatus memberStatus, Role role) {
         this.email = email;
@@ -69,6 +76,10 @@ public class Member extends BaseTimeEntity {
         this.zipCode = zipCode;
         this.memberStatus = memberStatus;
         this.role = role;
+    }
+
+    public void addOrder(Order order) {
+        orders.add(order);
     }
 
     //비밀번호 변경

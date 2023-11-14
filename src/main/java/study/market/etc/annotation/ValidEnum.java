@@ -9,7 +9,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 블로그 참조하여 ENUM validation 추가
+ * ENUM validation 추가
  */
 
 @Constraint(validatedBy = EnumValidator.class) //구체적인 validation 방법을 정의한 class

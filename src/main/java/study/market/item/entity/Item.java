@@ -54,4 +54,13 @@ public class Item {
         this.price = price;
         this.stock = stock;
     }
+
+    public void removeStock(int count) {
+        this.stock -= count;
+    }
+
+    public void addStock(int count) {
+        this.stock += count;
+    }
+
 }

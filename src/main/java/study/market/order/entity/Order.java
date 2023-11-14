@@ -7,6 +7,7 @@ import study.market.member.entity.Member;
 import study.market.order.OrderStatus;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,13 +27,14 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @Entity
+@Table(name = "Orders")
 public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "member_id")
     private Member member;
 
@@ -45,8 +47,8 @@ public class Order {
     @Column(nullable = false, length = 5)
     private String zipCode;
 
-    @OneToMany(mappedBy = "order_id")
-    private List<OrderItem> orderItem;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<OrderItem> orderItems = new ArrayList<>();
 
     private int totalPrice;
 
@@ -58,4 +60,42 @@ public class Order {
     private LocalDateTime startDeliveryTime;
 
     private LocalDateTime finishDeliveryTime;
+
+    //member  order 연관관계 설정
+    public void addMember(Member member) {
+        this.member = member;
+        member.addOrder(this);
+    }
+
+    //order  orderItem 연관관계 설정
+    public void addOrderItem(OrderItem orderItem) {
+        orderItems.add(orderItem);
+        orderItem.addOrder(this);
+    }
+
+    //주소지 설정
+    public void addAddress(String address, String detailAddress, String zipCode) {
+        this.address = address;
+        this.detailAddress = detailAddress;
+        this.zipCode = zipCode;
+    }
+
+    //주문 상태 변경
+    public void editOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
+    }
+
+    //주문 생성
+    public static Order createOrder(Member member, String address, String detailAddress, String zipCode, List<OrderItem> orderItems) {
+        Order order = new Order();
+        order.addMember(member);
+        order.addAddress(address, detailAddress, zipCode);
+
+        for (OrderItem orderItem : orderItems) {
+            order.addOrderItem(orderItem);
+        }
+
+        order.editOrderStatus(OrderStatus.OUTSTANDING);
+        return order;
+    }
 }
