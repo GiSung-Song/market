@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import study.market.cart.entity.Cart;
 import study.market.etc.entity.BaseTimeEntity;
 import study.market.member.MemberStatus;
 import study.market.member.Role;
@@ -65,6 +66,10 @@ public class Member extends BaseTimeEntity {
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
     private List<Order> orders = new ArrayList<>();
 
+    @OneToOne
+    @JoinColumn(name = "cart_id")
+    private Cart cart;
+
     @Builder
     public Member(String email, String password, String name, String phoneNumber, String address, String detailAddress, String zipCode, MemberStatus memberStatus, Role role) {
         this.email = email;
@@ -78,8 +83,14 @@ public class Member extends BaseTimeEntity {
         this.role = role;
     }
 
+    //order member 연관관계
     public void addOrder(Order order) {
         orders.add(order);
+    }
+
+    //cart member 연관관계
+    public void addCart(Cart cart) {
+        this.cart = cart;
     }
 
     //비밀번호 변경

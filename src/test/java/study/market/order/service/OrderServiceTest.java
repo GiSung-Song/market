@@ -5,6 +5,11 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.parameters.P;
 import study.market.item.ItemStatus;
 import study.market.item.ItemType;
 import study.market.item.entity.Item;
@@ -13,6 +18,7 @@ import study.market.member.MemberStatus;
 import study.market.member.Role;
 import study.market.member.entity.Member;
 import study.market.member.repository.MemberRepository;
+import study.market.order.OrderStatus;
 import study.market.order.dto.OrderDto;
 import study.market.order.dto.OrderItemDto;
 import study.market.order.entity.Order;
@@ -138,7 +144,6 @@ class OrderServiceTest {
         Long savedId = orderService.orderItem(orderDto, member.getEmail());
         Order order = orderRepository.findById(savedId).orElseThrow(EntityNotFoundException::new);
 
-
         List<OrderItem> orderItems = order.getOrderItems();
         List<Long> ids = new ArrayList<>();
 
@@ -152,6 +157,123 @@ class OrderServiceTest {
 
         Assertions.assertThat(ids).containsOnly(drinkDto.getId(), snackDto.getId(), goodsDto.getId());
 
+    }
+
+    @Test
+    void getOrderList() {
+        saveItem();
+        saveMember();
+        orderData();
+
+        Member member = memberRepository.findByEmail("test123@test.com");
+        PageRequest pageable = PageRequest.of(0, 10);
+
+        Page<OrderDto> orderList = orderService.getOrderList(member.getEmail(), pageable);
+        Assertions.assertThat(orderList.getTotalElements()).isEqualTo(5);
+    }
+
+    @Test
+    void cancelOrder() {
+        saveItem();
+        saveMember();
+
+        Member member = memberRepository.findByEmail("test123@test.com");
+
+        Item drink = itemRepository.findByItemName("음료수");
+        Item snack = itemRepository.findByItemName("과자");
+        Item goods = itemRepository.findByItemName("상품");
+
+        OrderDto orderDto = new OrderDto();
+        List<OrderItemDto> orderItemDtoList = orderDto.getOrderItemDtoList();
+
+        OrderItemDto drinkDto = new OrderItemDto();
+        drinkDto.setId(drink.getId());
+        drinkDto.setItemName(drink.getItemName());
+        drinkDto.setStock(drink.getStock());
+        drinkDto.setPrice(drink.getPrice());
+        drinkDto.setCount(10);
+
+        orderItemDtoList.add(drinkDto);
+
+        OrderItemDto snackDto = new OrderItemDto();
+        snackDto.setId(snack.getId());
+        snackDto.setItemName(snack.getItemName());
+        snackDto.setStock(snack.getStock());
+        snackDto.setPrice(snack.getPrice());
+        snackDto.setCount(20);
+
+        orderItemDtoList.add(snackDto);
+
+        OrderItemDto goodsDto = new OrderItemDto();
+        goodsDto.setId(goods.getId());
+        goodsDto.setItemName(goods.getItemName());
+        goodsDto.setStock(goods.getStock());
+        goodsDto.setPrice(goods.getPrice());
+        goodsDto.setCount(30);
+
+        orderItemDtoList.add(goodsDto);
+
+        orderDto.setAddress("address");
+        orderDto.setZipCode("12345");
+        orderDto.setDetailAddress("12345");
+
+        Long savedId = orderService.orderItem(orderDto, member.getEmail());
+        Order order = orderRepository.findById(savedId).orElseThrow(EntityNotFoundException::new);
+
+        orderService.orderCancel(order.getId(), member.getEmail());
+
+        Order cancelOrder = orderRepository.findById(savedId).orElseThrow(EntityNotFoundException::new);
+
+        Assertions.assertThat(cancelOrder.getOrderStatus()).isEqualTo(OrderStatus.CANCEL);
+    }
+
+    void orderData() {
+        Member member = memberRepository.findByEmail("test123@test.com");
+
+        Item drink = itemRepository.findByItemName("음료수");
+        Item snack = itemRepository.findByItemName("과자");
+        Item goods = itemRepository.findByItemName("상품");
+
+        OrderDto orderDto = new OrderDto();
+        List<OrderItemDto> orderItemDtoList = orderDto.getOrderItemDtoList();
+
+        OrderItemDto drinkDto = new OrderItemDto();
+        drinkDto.setId(drink.getId());
+        drinkDto.setItemName(drink.getItemName());
+        drinkDto.setStock(drink.getStock());
+        drinkDto.setPrice(drink.getPrice());
+        drinkDto.setCount(10);
+
+        orderItemDtoList.add(drinkDto);
+
+        OrderItemDto snackDto = new OrderItemDto();
+        snackDto.setId(snack.getId());
+        snackDto.setItemName(snack.getItemName());
+        snackDto.setStock(snack.getStock());
+        snackDto.setPrice(snack.getPrice());
+        snackDto.setCount(20);
+
+        orderItemDtoList.add(snackDto);
+
+        OrderItemDto goodsDto = new OrderItemDto();
+        goodsDto.setId(goods.getId());
+        goodsDto.setItemName(goods.getItemName());
+        goodsDto.setStock(goods.getStock());
+        goodsDto.setPrice(goods.getPrice());
+        goodsDto.setCount(30);
+
+        orderItemDtoList.add(goodsDto);
+
+        orderDto.setAddress("address");
+        orderDto.setZipCode("12345");
+        orderDto.setDetailAddress("12345");
+
+
+        orderService.orderItem(orderDto, member.getEmail());
+        orderService.orderItem(orderDto, member.getEmail());
+        orderService.orderItem(orderDto, member.getEmail());
+        orderService.orderItem(orderDto, member.getEmail());
+        orderService.orderItem(orderDto, member.getEmail());
     }
 
 }

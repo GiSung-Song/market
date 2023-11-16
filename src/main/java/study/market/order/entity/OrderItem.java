@@ -23,6 +23,7 @@ public class OrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_item_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -31,7 +32,7 @@ public class OrderItem {
 
     private int count;
 
-    private int totalPrice;
+    private int itemTotalPrice;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "item_id")
@@ -42,14 +43,17 @@ public class OrderItem {
         this.order = order;
     }
 
+    //orderItem item 연관관계 설정
     public void addItem(Item item) {
         this.item = item;
     }
 
-    private void setTotalPrice(int totalPrice) {
-        this.totalPrice = totalPrice;
+    //물건에 대한 총 금액
+    private void setTotalPrice(int itemTotalPrice) {
+        this.itemTotalPrice = itemTotalPrice;
     }
 
+    //물건을 구매할 개수
     private void setCount(int count) {
         this.count = count;
     }
@@ -63,5 +67,11 @@ public class OrderItem {
         item.removeStock(count);
 
         return orderItem;
+    }
+
+    //물건 취소
+    public void cancelOrderItem() {
+        //취소한 수 만큼 재고 증가
+        this.getItem().addStock(count);
     }
 }

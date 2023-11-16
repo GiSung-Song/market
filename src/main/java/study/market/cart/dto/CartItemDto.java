@@ -1,4 +1,4 @@
-package study.market.order.dto;
+package study.market.cart.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class OrderItemDto {
+public class CartItemDto {
 
     private Long id;
     private String itemName;
@@ -15,4 +15,5 @@ public class OrderItemDto {
     private int stock;
     private int totalPrice;
     private int count;
+
 }

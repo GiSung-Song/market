@@ -3,6 +3,7 @@ package study.market.order.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import study.market.member.entity.Member;
 import study.market.order.OrderStatus;
 
@@ -24,6 +25,7 @@ import java.util.List;
  * finishDeliveryTime : 배송완료시각
  */
 
+@Slf4j
 @Getter
 @NoArgsConstructor
 @Entity
@@ -32,6 +34,7 @@ public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -97,5 +100,18 @@ public class Order {
 
         order.editOrderStatus(OrderStatus.OUTSTANDING);
         return order;
+    }
+
+    public void cancelOrder() {
+
+        if (this.orderStatus == OrderStatus.READY_DELIVERY || this.orderStatus == OrderStatus.FINISH_DELIVERY) {
+            throw new IllegalStateException("배송중이거나 배송완료 된 상품은 취소가 불가능합니다.");
+        }
+
+        editOrderStatus(OrderStatus.CANCEL);
+
+        for (OrderItem orderItem : orderItems) {
+            orderItem.cancelOrderItem();
+        }
     }
 }

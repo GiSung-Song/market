@@ -1,0 +1,52 @@
+package study.market.cart.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import study.market.member.entity.Member;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Getter
+@NoArgsConstructor
+public class Cart {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "cart_id")
+    private Long id;
+
+    @OneToOne
+    @JoinColumn(name = "member_id")
+    private Member member;
+
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<CartItem> cartItemList = new ArrayList<>();
+
+    private int totalPrice;
+
+    public void addMember(Member member) {
+        this.member = member;
+        member.addCart(this);
+    }
+
+    public void addCartItem(CartItem cartItem) {
+        cartItemList.add(cartItem);
+        cartItem.addCart(this);
+    }
+
+    //장바구니 생성
+    public static Cart createCart(Member member, List<CartItem> cartItems) {
+        Cart cart = new Cart();
+        cart.addMember(member);
+
+        for (CartItem cartItem : cartItems) {
+            cart.addCartItem(cartItem);
+        }
+
+        return cart;
+    }
+
+}

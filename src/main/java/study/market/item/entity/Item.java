@@ -48,6 +48,7 @@ public class Item {
         this.itemStatus = itemStatus;
     }
 
+    //상품 수정
     public void editItem(ItemType itemType, ItemStatus itemStatus, int price, int stock) {
         this.itemType = itemType;
         this.itemStatus = itemStatus;
@@ -55,10 +56,12 @@ public class Item {
         this.stock = stock;
     }
 
+    //상품 주문 시 재고 감소
     public void removeStock(int count) {
         this.stock -= count;
     }
 
+    //상품 취소 시 재고 증가
     public void addStock(int count) {
         this.stock += count;
     }
