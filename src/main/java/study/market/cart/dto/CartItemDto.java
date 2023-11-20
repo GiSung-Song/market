@@ -13,7 +13,6 @@ public class CartItemDto {
     private String itemName;
     private int price;
     private int stock;
-    private int totalPrice;
+    private int itemTotalPrice;
     private int count;
-
 }
