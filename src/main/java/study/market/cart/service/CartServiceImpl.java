@@ -123,6 +123,10 @@ public class CartServiceImpl implements CartService {
         //회원 장바구니 검색
         Cart cart = cartRepository.findByMemberId(member.getId());
 
+        if (cart == null) {
+            cart = Cart.createCart(member);
+        }
+
         List<CartItemDto> cartItemDtoList = new ArrayList<>();
         List<CartItem> cartItemList = cart.getCartItemList();
 
@@ -130,7 +134,7 @@ public class CartServiceImpl implements CartService {
             CartItemDto cartItemDto = new CartItemDto();
 
             cartItemDto.setId(cartItem.getId());
-            cartItemDto.setItemName(cartItemDto.getItemName());
+            cartItemDto.setItemName(cartItem.getItem().getItemName());
             cartItemDto.setPrice(cartItem.getItem().getPrice());
             cartItemDto.setStock(cartItem.getItem().getStock());
             cartItemDto.setItemTotalPrice(cartItem.getItemTotalPrice());

@@ -56,5 +56,6 @@ public class CartItem {
 
     public void addCount(int count) {
         this.count = this.count + count;
+        setTotalPrice(this.count * item.getPrice());
     }
 }

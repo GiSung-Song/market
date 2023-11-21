@@ -1,6 +1,7 @@
 package study.market.cart.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -17,16 +18,26 @@ import java.security.Principal;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
 public class CartController {
 
     private final CartService cartService;
 
     @PostMapping("/cart/add")
     @ResponseBody
-    public void addCartItem(@RequestBody CartItemDto cartItemDto, Principal principal) {
+    public boolean addCartItem(@RequestBody CartItemDto cartItemDto, Principal principal) {
 
         String email = principal.getName();
+
+        log.info("email : {}", email);
+
+        if (email == null) {
+            return false;
+        }
+
         cartService.addCartItem(cartItemDto, email);
+
+        return true;
     }
 
     @PostMapping("/cart/delete")
@@ -37,13 +48,18 @@ public class CartController {
         cartService.deleteCartItem(cartItemDto, email);
     }
 
-    @GetMapping("/cart/cart_list")
+    @GetMapping("/cart/cartList")
     public String getCartForm(Model model, Principal principal,@PageableDefault(page = 0, size = 10) Pageable pageable) {
 
         Page<CartItemDto> cartItemList = cartService.getCartItemList(principal.getName(), pageable);
-        model.addAttribute("cartItem", cartItemList);
 
-        return null;
+        int totalPrice = cartItemList.stream()
+                        .mapToInt(cartItem -> cartItem.getItemTotalPrice()).sum();
+
+        model.addAttribute("cartList", cartItemList);
+        model.addAttribute("totalPrice", totalPrice);
+
+        return "/cart/cartListForm";
     }
 
 }

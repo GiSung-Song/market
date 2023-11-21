@@ -46,6 +46,8 @@ public class WebSecurityConfig {
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/member/login")
                         .invalidateHttpSession(true))
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(new AjaxAuthenticationEntryPoint("/member/login")))
                 .csrf(csrf -> csrf
                         .disable())
                 .build();

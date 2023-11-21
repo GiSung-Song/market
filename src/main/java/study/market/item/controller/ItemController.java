@@ -18,6 +18,8 @@ import study.market.item.dto.ItemFormDto;
 import study.market.item.dto.ItemSearchCondition;
 import study.market.item.service.ItemService;
 
+import java.security.Principal;
+
 @RequiredArgsConstructor
 @Controller
 @Slf4j

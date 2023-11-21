@@ -35,7 +35,6 @@ public class MailController {
     public boolean matchKeyAndSignUp(@RequestBody MemberSignUpReqDto dto) {
 
         return redisService.matchKey(dto.getEmail(), dto.getAuthCode());
-
     }
 
     @ResponseBody
