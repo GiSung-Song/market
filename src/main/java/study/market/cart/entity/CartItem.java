@@ -58,4 +58,10 @@ public class CartItem {
         this.count = this.count + count;
         setTotalPrice(this.count * item.getPrice());
     }
+
+    public void editCount(int count) {
+        this.count = count;
+        setTotalPrice(count * item.getPrice());
+    }
+
 }

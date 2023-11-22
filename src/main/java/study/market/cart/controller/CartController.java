@@ -25,19 +25,20 @@ public class CartController {
 
     @PostMapping("/cart/add")
     @ResponseBody
-    public boolean addCartItem(@RequestBody CartItemDto cartItemDto, Principal principal) {
+    public void addCartItem(@RequestBody CartItemDto cartItemDto, Principal principal) {
 
         String email = principal.getName();
 
-        log.info("email : {}", email);
-
-        if (email == null) {
-            return false;
-        }
-
         cartService.addCartItem(cartItemDto, email);
+    }
 
-        return true;
+    @PostMapping("/cart/edit-count")
+    @ResponseBody
+    public void editCartItemCount(@RequestBody CartItemDto cartItemDto, Principal principal) {
+
+        String email = principal.getName();
+
+        cartService.editCount(cartItemDto, email);
     }
 
     @PostMapping("/cart/delete")
@@ -48,7 +49,7 @@ public class CartController {
         cartService.deleteCartItem(cartItemDto, email);
     }
 
-    @GetMapping("/cart/cartList")
+    @GetMapping("/cart/cart-list")
     public String getCartForm(Model model, Principal principal,@PageableDefault(page = 0, size = 10) Pageable pageable) {
 
         Page<CartItemDto> cartItemList = cartService.getCartItemList(principal.getName(), pageable);
@@ -60,6 +61,13 @@ public class CartController {
         model.addAttribute("totalPrice", totalPrice);
 
         return "/cart/cartListForm";
+    }
+
+    @PostMapping("/cart/delete-all")
+    @ResponseBody
+    public void deleteAllCartItem(Principal principal) {
+        String email = principal.getName();
+        cartService.clearCart(email);
     }
 
 }

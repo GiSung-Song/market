@@ -36,13 +36,11 @@
                 contentType: "application/json; charset=UTF-8",
                 data: JSON.stringify(data),
                 async : true,
-                success: function(res) {
-                    if (res) {
-                        alert("장바구니에 담았습니다.");
-                        document.getElementById("problem").hidden = true;
-                    }
+                success: function() {
+                    alert("장바구니에 담았습니다.");
+                    document.getElementById("problem").hidden = true;
                 },
-                error: function(jqXHR, error) {
+                error: function(jqXHR) {
                     if (jqXHR.status == '401') {
                         alert("로그인 페이지로 이동합니다.");
                         location.href='/member/login';

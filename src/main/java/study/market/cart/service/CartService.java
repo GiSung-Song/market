@@ -10,5 +10,6 @@ public interface CartService {
     void deleteCartItem(CartItemDto cartItemDto, String email);
     void clearCart(String email);
     Page<CartItemDto> getCartItemList(String email, Pageable pageable);
+    void editCount(CartItemDto cartItemDto, String email);
 
 }

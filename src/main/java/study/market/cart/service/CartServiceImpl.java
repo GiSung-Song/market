@@ -8,7 +8,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import study.market.cart.dto.CartDto;
 import study.market.cart.dto.CartItemDto;
 import study.market.cart.entity.Cart;
 import study.market.cart.entity.CartItem;
@@ -48,7 +47,7 @@ public class CartServiceImpl implements CartService {
         } else {
             //장바구니가 있을 때
             Optional<CartItem> existCartItem = cart.getCartItemList().stream()
-                    .filter(inCartItem -> inCartItem.getId() == item.getId())
+                    .filter(inCartItem -> inCartItem.getItem().getId() == item.getId())
                     .findFirst();
 
             // 추가할 아이템이 장바구니에 이미 존재하면 count +
@@ -71,7 +70,6 @@ public class CartServiceImpl implements CartService {
 
         Member member = getMember(email);
 
-        Item item = itemRepository.findById(cartItemDto.getId()).orElseThrow(EntityNotFoundException::new);
         Cart cart = cartRepository.findByMemberId(member.getId());
 
         //장바구니가 없을 시
@@ -80,7 +78,7 @@ public class CartServiceImpl implements CartService {
         } else {
             //장바구니에 해당 상품이 없을 때 오류처리
             CartItem cartItem = cart.getCartItemList().stream()
-                    .filter(inCartItem -> inCartItem.getId() == item.getId())
+                    .filter(inCartItem -> inCartItem.getId() == cartItemDto.getId())
                     .findFirst()
                     .orElseThrow(IllegalStateException::new);
 
@@ -115,6 +113,7 @@ public class CartServiceImpl implements CartService {
         return member;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Page<CartItemDto> getCartItemList(String email, Pageable pageable) {
 
@@ -144,5 +143,25 @@ public class CartServiceImpl implements CartService {
         }
 
         return new PageImpl<>(cartItemDtoList, pageable, cartItemList.size());
+    }
+
+    @Transactional
+    @Override
+    public void editCount(CartItemDto cartItemDto, String email) {
+
+        Member member = getMember(email);
+
+        Cart cart = cartRepository.findByMemberId(member.getId());
+
+        if (cart == null) {
+            cart = Cart.createCart(member);
+        }
+
+        CartItem cartItem = cart.getCartItemList().stream()
+                .filter(cartItm -> cartItm.getId() == cartItemDto.getId())
+                .findFirst()
+                .orElseThrow(IllegalStateException::new);
+
+        cartItem.editCount(cartItemDto.getCount());
     }
 }
