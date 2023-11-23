@@ -9,7 +9,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CartItemDto {
 
-    private Long id;
+    private Long cartItemId;
+    private Long itemId;
     private String itemName;
     private int price;
     private int stock;

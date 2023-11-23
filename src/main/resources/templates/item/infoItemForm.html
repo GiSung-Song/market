@@ -8,12 +8,13 @@
 
     <script th:inline="javascript">
 
-        function addCart() {
+        function addCart(bool) {
             let itemId    = [[${item.id}]];
             let itemName  = [[${item.itemName}]];
             let itemPrice = [[${item.price}]];
             let itemStock = [[${item.stock}]];
             let count     = document.getElementById("count").value;
+            let goUrl;
 
             if (count > itemStock) {
                 document.getElementById("problem").innerText = "재고 수량보다 많이 설정할 수 없습니다.";
@@ -22,8 +23,14 @@
                 return;
             }
 
+            if (bool == true) {
+                goUrl = "/cart/add";
+            } else {
+                goUrl = "/cart/ready-order";
+            }
+
             const data = {
-                id : itemId,
+                itemId : itemId,
                 itemName : itemName,
                 price : itemPrice,
                 stock : itemStock,
@@ -32,7 +39,7 @@
 
             $.ajax({
                 type: "post",
-                url: "/cart/add",
+                url: goUrl,
                 contentType: "application/json; charset=UTF-8",
                 data: JSON.stringify(data),
                 async : true,
@@ -120,8 +127,8 @@
                 <input sec:authorize="!hasAuthority('ADMIN')" type="number" class="form-control" name="count" id="count" placeholder="수량"
                        min="1" th:max="*{stock}" onkeyup="if(value < 0) value = 1;" value="1" style="width: 100px; margin: auto">
 
-                <button sec:authorize="!hasAuthority('ADMIN')" type="button" class="btn btn-primary" onclick="addCart()" style="margin-top: 10px">장바구니</button>
-                <button sec:authorize="!hasAuthority('ADMIN')" type="button" class="btn btn-primary" onclick="" style="margin-top: 10px">주문</button>
+                <button sec:authorize="!hasAuthority('ADMIN')" type="button" class="btn btn-primary" onclick="addCart(true)" style="margin-top: 10px">장바구니</button>
+                <button sec:authorize="!hasAuthority('ADMIN')" type="button" class="btn btn-primary" style="margin-top: 10px" onclick="addCart(false)">주문</button>
                 <p id = "problem" hidden>
             </div>
             <button sec:authorize="hasAuthority('ADMIN')" type="button" class="btn btn-primary" th:onclick="|location.href='@{/admin/item/{id}/edit(id=${item.id})}'|" style="margin-top: 10px">수정</button>

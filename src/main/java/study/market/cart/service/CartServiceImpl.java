@@ -36,7 +36,7 @@ public class CartServiceImpl implements CartService {
 
         Member member = getMember(email);
 
-        Item item = itemRepository.findById(cartItemDto.getId()).orElseThrow(EntityNotFoundException::new);
+        Item item = itemRepository.findById(cartItemDto.getItemId()).orElseThrow(EntityNotFoundException::new);
         Cart cart = cartRepository.findByMemberId(member.getId());
         CartItem cartItem = CartItem.createCartItem(item, cartItemDto.getCount());
 
@@ -78,7 +78,7 @@ public class CartServiceImpl implements CartService {
         } else {
             //장바구니에 해당 상품이 없을 때 오류처리
             CartItem cartItem = cart.getCartItemList().stream()
-                    .filter(inCartItem -> inCartItem.getId() == cartItemDto.getId())
+                    .filter(inCartItem -> inCartItem.getId() == cartItemDto.getCartItemId())
                     .findFirst()
                     .orElseThrow(IllegalStateException::new);
 
@@ -132,7 +132,8 @@ public class CartServiceImpl implements CartService {
         for (CartItem cartItem : cartItemList) {
             CartItemDto cartItemDto = new CartItemDto();
 
-            cartItemDto.setId(cartItem.getId());
+            cartItemDto.setCartItemId(cartItem.getId());
+            cartItemDto.setItemId(cartItem.getItem().getId());
             cartItemDto.setItemName(cartItem.getItem().getItemName());
             cartItemDto.setPrice(cartItem.getItem().getPrice());
             cartItemDto.setStock(cartItem.getItem().getStock());
@@ -158,7 +159,7 @@ public class CartServiceImpl implements CartService {
         }
 
         CartItem cartItem = cart.getCartItemList().stream()
-                .filter(cartItm -> cartItm.getId() == cartItemDto.getId())
+                .filter(cartItm -> cartItm.getId() == cartItemDto.getCartItemId())
                 .findFirst()
                 .orElseThrow(IllegalStateException::new);
 
