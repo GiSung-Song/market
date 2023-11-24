@@ -43,12 +43,12 @@ class CartServiceTest {
 
         CartItemDto cartItemDto = new CartItemDto();
         cartItemDto.setItemName(item.getItemName());
-        cartItemDto.setId(item.getId());
+        cartItemDto.setItemId(item.getId());
         cartItemDto.setCount(10);
 
         CartItemDto cartItemDto2 = new CartItemDto();
         cartItemDto2.setItemName(item.getItemName());
-        cartItemDto2.setId(item.getId());
+        cartItemDto2.setItemId(item.getId());
         cartItemDto2.setCount(20);
 
         Long savedId = cartService.addCartItem(cartItemDto, member.getEmail());
@@ -73,12 +73,12 @@ class CartServiceTest {
 
         CartItemDto cartItemDto = new CartItemDto();
         cartItemDto.setItemName(drink.getItemName());
-        cartItemDto.setId(drink.getId());
+        cartItemDto.setItemId(drink.getId());
         cartItemDto.setCount(10);
 
         CartItemDto cartItemDto2 = new CartItemDto();
         cartItemDto2.setItemName(snack.getItemName());
-        cartItemDto2.setId(snack.getId());
+        cartItemDto2.setItemId(snack.getId());
         cartItemDto2.setCount(20);
 
 
@@ -107,12 +107,12 @@ class CartServiceTest {
 
         CartItemDto cartItemDto = new CartItemDto();
         cartItemDto.setItemName(drink.getItemName());
-        cartItemDto.setId(drink.getId());
+        cartItemDto.setItemId(drink.getId());
         cartItemDto.setCount(10);
 
         CartItemDto cartItemDto2 = new CartItemDto();
         cartItemDto2.setItemName(snack.getItemName());
-        cartItemDto2.setId(snack.getId());
+        cartItemDto2.setItemId(snack.getId());
         cartItemDto2.setCount(20);
 
         Long savedId = cartService.addCartItem(cartItemDto, member.getEmail());

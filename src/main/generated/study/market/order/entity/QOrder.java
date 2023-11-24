@@ -32,6 +32,8 @@ public class QOrder extends EntityPathBase<Order> {
 
     public final study.market.member.entity.QMember member;
 
+    public final StringPath message = createString("message");
+
     public final ListPath<OrderItem, QOrderItem> orderItems = this.<OrderItem, QOrderItem>createList("orderItems", OrderItem.class, QOrderItem.class, PathInits.DIRECT2);
 
     public final EnumPath<study.market.order.OrderStatus> orderStatus = createEnum("orderStatus", study.market.order.OrderStatus.class);

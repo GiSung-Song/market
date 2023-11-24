@@ -8,6 +8,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import study.market.cart.entity.Cart;
+import study.market.cart.entity.CartItem;
+import study.market.cart.repository.CartRepository;
 import study.market.item.entity.Item;
 import study.market.item.repository.ItemRepository;
 import study.market.member.entity.Member;
@@ -29,6 +32,7 @@ public class OrderServiceImpl implements OrderService {
     private final MemberRepository memberRepository;
     private final ItemRepository itemRepository;
     private final OrderRepository orderRepository;
+    private final CartRepository cartRepository;
 
     @Transactional
     @Override
@@ -40,18 +44,25 @@ public class OrderServiceImpl implements OrderService {
 
         //주문 상품 생성
         for (OrderItemDto orderItemDto : orderDto.getOrderItemDtoList()) {
-            Item item = itemRepository.findById(orderItemDto.getId()).orElseThrow(EntityNotFoundException::new);
+            Item item = itemRepository.findById(orderItemDto.getItemId()).orElseThrow(EntityNotFoundException::new);
 
+            log.info("count : {}", orderItemDto.getCount());
             OrderItem orderItem = OrderItem.createOrderItem(item, orderItemDto.getCount());
 
             orderItems.add(orderItem);
         }
 
+        log.info("orderDto.getTotalPrice : {}", orderDto.getTotalPrice());
+
         //주문 생성
-        Order order = Order.createOrder(member, orderDto.getAddress(), orderDto.getDetailAddress(), orderDto.getZipCode(), orderItems);
+        Order order = Order.createOrder(
+                member, orderDto.getAddress(), orderDto.getDetailAddress(), orderDto.getZipCode(), orderItems, orderDto.getTotalPrice(), orderDto.getMessage());
 
         //주문 저장
         orderRepository.save(order);
+
+        //장바구니 비우기
+        member.getCart().removeAllCartItem();
 
         return order.getId();
     }
@@ -71,8 +82,10 @@ public class OrderServiceImpl implements OrderService {
         order.cancelOrder();
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public Page<OrderDto> getOrderList(String email, Pageable pageable) {
+    //주문 내역 가져오기
+    public Page<OrderDto> getOrderHistoryList(String email, Pageable pageable) {
         Member member = findMember(email);
 
         Page<Order> orderList = orderRepository.findByMemberId(member.getId(), pageable);
@@ -105,6 +118,52 @@ public class OrderServiceImpl implements OrderService {
         return new PageImpl<>(orderDtoList, pageable, orderList.getTotalElements());
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    //주문 정보 가져오기
+    public OrderDto getOrderInfo(String email) {
+        Member member = findMember(email);
+
+        OrderDto orderDto = new OrderDto();
+        orderDto.setPhoneNumber(member.getPhoneNumber()); //핸드폰 번호
+        orderDto.setZipCode(member.getZipCode()); //우편번호
+        orderDto.setAddress(member.getAddress()); //주소
+        orderDto.setDetailAddress(member.getDetailAddress()); //상세주소
+
+        Cart memberCart = cartRepository.findByMemberId(member.getId());
+        List<CartItem> cartItemList = memberCart.getCartItemList();
+        List<OrderItemDto> orderItemDtoList = new ArrayList<>();
+
+        for (CartItem cartItem : cartItemList) {
+
+            OrderItemDto orderItemDto = new OrderItemDto();
+            orderItemDto.setItemId(cartItem.getItem().getId()); //상품Id
+            orderItemDto.setItemName(cartItem.getItem().getItemName()); //상품명
+            orderItemDto.setStock(cartItem.getItem().getStock()); //상품 재고
+            orderItemDto.setPrice(cartItem.getItem().getPrice()); //상품 개당 가격
+            orderItemDto.setItemTotalPrice(cartItem.getItemTotalPrice()); //상품 총 가격 (count * price)
+
+            //장바구니에 담은 개수가 재고보다 클 경우 상품 재고 수 만큼 count 수정
+            if (cartItem.getCount() > cartItem.getItem().getStock()) {
+                orderItemDto.setCount(cartItem.getItem().getStock());
+            } else {
+                //재고보다 담은 상품의 개수가 적을 경우 담은 수 만큼 세팅
+                orderItemDto.setCount(cartItem.getCount());
+            }
+
+            orderItemDtoList.add(orderItemDto);
+        }
+
+        int totalPrice = orderItemDtoList.stream()
+                .mapToInt(orderItem -> orderItem.getItemTotalPrice())
+                .sum();
+
+        orderDto.setOrderItemDtoList(orderItemDtoList);
+        orderDto.setTotalPrice(totalPrice);
+
+        return orderDto;
+    }
+
     private Member findMember(String email) {
         Member member = memberRepository.findByEmail(email);
 
@@ -118,11 +177,11 @@ public class OrderServiceImpl implements OrderService {
     private OrderItemDto toDtoOrderItem(OrderItem orderItem) {
         OrderItemDto orderItemDto = new OrderItemDto();
 
-        orderItemDto.setId(orderItem.getId());
+        orderItemDto.setItemId(orderItem.getId());
         orderItemDto.setItemName(orderItem.getItem().getItemName());
         orderItemDto.setStock(orderItem.getItem().getStock());
         orderItemDto.setPrice(orderItem.getItem().getPrice());
-        orderItemDto.setTotalPrice(orderItem.getItemTotalPrice());
+        orderItemDto.setItemTotalPrice(orderItem.getItemTotalPrice());
         orderItemDto.setCount(orderItem.getCount());
 
         return orderItemDto;

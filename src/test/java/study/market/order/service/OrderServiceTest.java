@@ -5,11 +5,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.parameters.P;
 import study.market.item.ItemStatus;
 import study.market.item.ItemType;
 import study.market.item.entity.Item;
@@ -28,8 +25,6 @@ import study.market.order.repository.OrderRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class OrderServiceTest {
@@ -110,7 +105,7 @@ class OrderServiceTest {
         List<OrderItemDto> orderItemDtoList = orderDto.getOrderItemDtoList();
 
         OrderItemDto drinkDto = new OrderItemDto();
-        drinkDto.setId(drink.getId());
+        drinkDto.setItemId(drink.getId());
         drinkDto.setItemName(drink.getItemName());
         drinkDto.setStock(drink.getStock());
         drinkDto.setPrice(drink.getPrice());
@@ -119,7 +114,7 @@ class OrderServiceTest {
         orderItemDtoList.add(drinkDto);
 
         OrderItemDto snackDto = new OrderItemDto();
-        snackDto.setId(snack.getId());
+        snackDto.setItemId(snack.getId());
         snackDto.setItemName(snack.getItemName());
         snackDto.setStock(snack.getStock());
         snackDto.setPrice(snack.getPrice());
@@ -128,7 +123,7 @@ class OrderServiceTest {
         orderItemDtoList.add(snackDto);
 
         OrderItemDto goodsDto = new OrderItemDto();
-        goodsDto.setId(goods.getId());
+        goodsDto.setItemId(goods.getId());
         goodsDto.setItemName(goods.getItemName());
         goodsDto.setStock(goods.getStock());
         goodsDto.setPrice(goods.getPrice());
@@ -151,11 +146,11 @@ class OrderServiceTest {
             ids.add(orderItem.getId());
         }
 
-        OrderItem findDrink = orderItemRepository.findById(drinkDto.getId()).get();
+        OrderItem findDrink = orderItemRepository.findById(drinkDto.getItemId()).get();
 
         Assertions.assertThat(findDrink.getItem().getItemName()).isEqualTo(drinkDto.getItemName());
 
-        Assertions.assertThat(ids).containsOnly(drinkDto.getId(), snackDto.getId(), goodsDto.getId());
+        Assertions.assertThat(ids).containsOnly(drinkDto.getItemId(), snackDto.getItemId(), goodsDto.getItemId());
 
     }
 
@@ -168,7 +163,7 @@ class OrderServiceTest {
         Member member = memberRepository.findByEmail("test123@test.com");
         PageRequest pageable = PageRequest.of(0, 10);
 
-        Page<OrderDto> orderList = orderService.getOrderList(member.getEmail(), pageable);
+        Page<OrderDto> orderList = orderService.getOrderHistoryList(member.getEmail(), pageable);
         Assertions.assertThat(orderList.getTotalElements()).isEqualTo(5);
     }
 
@@ -187,7 +182,7 @@ class OrderServiceTest {
         List<OrderItemDto> orderItemDtoList = orderDto.getOrderItemDtoList();
 
         OrderItemDto drinkDto = new OrderItemDto();
-        drinkDto.setId(drink.getId());
+        drinkDto.setItemId(drink.getId());
         drinkDto.setItemName(drink.getItemName());
         drinkDto.setStock(drink.getStock());
         drinkDto.setPrice(drink.getPrice());
@@ -196,7 +191,7 @@ class OrderServiceTest {
         orderItemDtoList.add(drinkDto);
 
         OrderItemDto snackDto = new OrderItemDto();
-        snackDto.setId(snack.getId());
+        snackDto.setItemId(snack.getId());
         snackDto.setItemName(snack.getItemName());
         snackDto.setStock(snack.getStock());
         snackDto.setPrice(snack.getPrice());
@@ -205,7 +200,7 @@ class OrderServiceTest {
         orderItemDtoList.add(snackDto);
 
         OrderItemDto goodsDto = new OrderItemDto();
-        goodsDto.setId(goods.getId());
+        goodsDto.setItemId(goods.getId());
         goodsDto.setItemName(goods.getItemName());
         goodsDto.setStock(goods.getStock());
         goodsDto.setPrice(goods.getPrice());
@@ -238,7 +233,7 @@ class OrderServiceTest {
         List<OrderItemDto> orderItemDtoList = orderDto.getOrderItemDtoList();
 
         OrderItemDto drinkDto = new OrderItemDto();
-        drinkDto.setId(drink.getId());
+        drinkDto.setItemId(drink.getId());
         drinkDto.setItemName(drink.getItemName());
         drinkDto.setStock(drink.getStock());
         drinkDto.setPrice(drink.getPrice());
@@ -247,7 +242,7 @@ class OrderServiceTest {
         orderItemDtoList.add(drinkDto);
 
         OrderItemDto snackDto = new OrderItemDto();
-        snackDto.setId(snack.getId());
+        snackDto.setItemId(snack.getId());
         snackDto.setItemName(snack.getItemName());
         snackDto.setStock(snack.getStock());
         snackDto.setPrice(snack.getPrice());
@@ -256,7 +251,7 @@ class OrderServiceTest {
         orderItemDtoList.add(snackDto);
 
         OrderItemDto goodsDto = new OrderItemDto();
-        goodsDto.setId(goods.getId());
+        goodsDto.setItemId(goods.getId());
         goodsDto.setItemName(goods.getItemName());
         goodsDto.setStock(goods.getStock());
         goodsDto.setPrice(goods.getPrice());

@@ -6,19 +6,46 @@
 <!-- 사용자 스크립트 추가 -->
 <th:block layout:fragment="script">
 
+    <script src="http://dmaps.daum.net/map_js_init/postcode.v2.js"></script>
     <script th:inline="javascript">
 
-        function validate() {
+        function findAddress() {
+            new daum.Postcode({
+                oncomplete: function (data) {
+                    // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
 
+                    // 도로명 주소의 노출 규칙에 따라 주소를 표시한다.
+                    // 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+                    let roadAddr = data.roadAddress; // 도로명 주소 변수
+                    let extraRoadAddr = ''; // 참고 항목 변수
 
+                    // 법정동명이 있을 경우 추가한다. (법정리는 제외)
+                    // 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
+                    if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
+                        extraRoadAddr += data.bname;
+                    }
+                    // 건물명이 있고, 공동주택일 경우 추가한다.
+                    if (data.buildingName !== '' && data.apartment === 'Y') {
+                        extraRoadAddr += (extraRoadAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+                    }
+                    // 표시할 참고항목이 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
+                    if (extraRoadAddr !== '') {
+                        extraRoadAddr = ' (' + extraRoadAddr + ')';
+                    }
 
+                    // 우편번호와 주소 정보를 해당 필드에 넣는다.
+                    document.getElementById('zipCode').value = data.zonecode;
+                    document.getElementById("address").value = roadAddr + extraRoadAddr;
+                    document.getElementById("detailAddress").focus();
+                }
+            }).open();
         }
 
         function cancelItem(id) {
-            let itemId    = id;
+            let itemId = id;
 
             let data = {
-                id : itemId,
+                itemId: itemId,
             };
 
             $.ajax({
@@ -26,15 +53,15 @@
                 url: "/cart/delete",
                 contentType: "application/json; charset=UTF-8",
                 data: JSON.stringify(data),
-                async : true,
-                success: function() {
+                async: true,
+                success: function () {
                     alert("해당 아이템을 장바구니에서 삭제했습니다.");
                     window.location.reload(true);
                 },
-                error: function(jqXHR) {
+                error: function (jqXHR) {
                     if (jqXHR.status == '401') {
                         alert("로그인 페이지로 이동합니다.");
-                        location.href='/member/login';
+                        location.href = '/member/login';
                     }
                 },
             });
@@ -45,15 +72,15 @@
                 type: "post",
                 url: "/cart/delete-all",
                 contentType: "application/json; charset=UTF-8",
-                async : true,
-                success: function() {
-                    alert("장바구니를 비웠습니다.");
+                async: true,
+                success: function () {
+                    alert("해당 상품을 주문 목록에서 삭제했습니다.");
                     window.location.reload(true);
                 },
-                error: function(jqXHR) {
+                error: function (jqXHR) {
                     if (jqXHR.status == '401') {
                         alert("로그인 페이지로 이동합니다.");
-                        location.href='/member/login';
+                        location.href = '/member/login';
                     }
                 },
             });
@@ -61,7 +88,7 @@
 
         function setCount(id, count, stock, bool) {
             let itemId = id;
-            let itemCount  = count;
+            let itemCount = count;
 
             if (bool == "+") {
 
@@ -80,8 +107,8 @@
             }
 
             let data = {
-                id : itemId,
-                count : itemCount
+                itemId: itemId,
+                count: itemCount
             };
 
             $.ajax({
@@ -89,14 +116,14 @@
                 url: "/cart/edit-count",
                 contentType: "application/json; charset=UTF-8",
                 data: JSON.stringify(data),
-                async : true,
-                success: function() {
+                async: true,
+                success: function () {
                     window.location.reload(true);
                 },
-                error: function(jqXHR) {
+                error: function (jqXHR) {
                     if (jqXHR.status == '401') {
                         alert("로그인 페이지로 이동합니다.");
-                        location.href='/member/login';
+                        location.href = '/member/login';
                     }
                 },
             });
@@ -117,123 +144,97 @@
 
 <div layout:fragment="content">
 
-    <h2 class="mb-4" style="margin-top: 15px; text-align: center">
-        주문 목록
-    </h2>
+    <form action="/order/order" role="form" method="post" th:object="${order}">
+        <h2 class="mb-4" style="margin-top: 15px; text-align: center">
+            주문 목록
+        </h2>
 
-    <!-- 페이징 -->
-    <div th:if="${!orderList.isEmpty()}">
+        <div th:unless="${order.getOrderItemDtoList().size() == 0}">
 
-        <table class="table">
-            <thead>
-            <tr>
-                <td>번호</td>
-                <td>상품명</td>
-                <td>가격</td>
-                <td>재고</td>
-                <td>수량</td>
-                <td>총 금액</td>
-                <td>삭제</td>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="item, itemStat : ${orderList}">
-                <td th:text="${itemStat.count}"></td>
-                <td th:text="${item.itemName}"></td>
-                <td th:text="${#numbers.formatInteger(item.price, 1, 'COMMA')} + '원'"></td>
-                <td th:text="${item.stock}"></td>
-                <td>
-                    <div>
-                        <button id="minusBtn" th:idParam="${item.cartItemId}" th:countParam="${item.count}"
-                                onclick="setCount(this.getAttribute('idParam'), this.getAttribute('countParam'), '0', '-')">-</button>
-                        <label th:text="${item.count}"></label>
-                        <button id="plusBtn" th:idParam="${item.cartItemId}" th:countParam="${item.count}" th:stockParam="${item.stock}"
-                                onclick="setCount(this.getAttribute('idParam'), this.getAttribute('countParam'), this.getAttribute('stockParam'), '+')">+</button>
+            <div>
+                <div class="form-group">
+                    <label th:for="phoneNumber">전화번호</label>
+                    <input type="text" th:field="*{phoneNumber}" class="form-control" style="width: 300px" readonly>
+                </div>
+                <div class="form-group">
+                    <label th:for="zipCode">우편번호</label>
 
-                    </div>
-                </td>
-                <td th:text="${#numbers.formatInteger(item.itemTotalPrice, 1, 'COMMA')} + '원'"></td>
-                <td><button th:text="X" th:itemParam="${item.cartItemId}" onclick="cancelItem(this.getAttribute('itemParam'))">x</button></td>
-            </tr>
-            </tbody>
-        </table>
+                    <input type="button" onclick="findAddress()" value="주소 찾기">
+                    <input type="text" th:field="*{zipCode}" class="form-control" placeholder="우편번호" style="width: 100px" readonly>
+                    <label th:for="address">주소</label>
+                    <input type="text" th:field="*{address}" class="form-control" placeholder="도로명 주소" style="width: 1000px" readonly>
+                    <label th:for="detailAddress">상세주소</label>
+                    <input type="text" th:field="*{detailAddress}" class="form-control" placeholder="상세주소" style="width: 1000px">
+                </div>
+                <div class="form-group">
+                    <label th:for="message">요청사항</label>
+                    <input type="text" th:field="*{message}" class="form-control" placeholder="요청사항을 적어주세요." style="width: 1000px">
+                </div>
+            </div>
 
-        <br>
+            <br>
+            <hr>
+            <br>
 
-        <div style="float: right; margin-right: 50px">
-            <button onclick="cancelAllItem()">장바구니 비우기</button>
+            <table class="table">
+                <thead>
+                <tr>
+                    <td>번호</td>
+                    <td>상품명</td>
+                    <td>가격</td>
+                    <td>재고</td>
+                    <td>수량</td>
+                    <td>총 금액</td>
+                    <td>삭제</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item, itemStat : ${order.orderItemDtoList}">
+                    <td th:text="${itemStat.count}" th:field="${itemStat.count}"></td>
+                    <td th:text="${item.itemName}" th:field="${item.itemName}"></td>
+                    <td th:text="${#numbers.formatInteger(item.price, 1, 'COMMA')} + '원'" th:field="${item.price}"></td>
+                    <td th:text="${item.stock}" th:field="${item.stock}"></td>
+                    <td>
+                        <div>
+                            <button id="minusBtn" th:idParam="${item.itemId}" th:countParam="${item.count}"
+                                    onclick="setCount(this.getAttribute('idParam'), this.getAttribute('countParam'), '0', '-')">-</button>
+                            <label th:text="${item.count}" th:field="${item.count}"></label>
+                            <button id="plusBtn" th:idParam="${item.itemId}" th:countParam="${item.count}" th:stockParam="${item.stock}"
+                                    onclick="setCount(this.getAttribute('idParam'), this.getAttribute('countParam'), this.getAttribute('stockParam'), '+')">+</button>
+
+                        </div>
+                    </td>
+                    <td th:text="${#numbers.formatInteger(item.itemTotalPrice, 1, 'COMMA')} + '원'" th:field="${item.itemTotalPrice}"></td>
+                    <td>
+                        <button th:text="X" th:itemParam="${item.itemId}" onclick="cancelItem(this.getAttribute('itemParam'))">x</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <br>
+
+            <div style="float: right; margin-right: 50px">
+                <button onclick="cancelAllItem()">주문취소</button>
+            </div>
+
+            <br>
+            <hr>
+            <br>
+
+            <div style="float: right; margin-right: 50px">
+                <h4 th:text="'총 금액 : ' + ${#numbers.formatInteger(order.totalPrice, 1, 'COMMA')} + '원'" th:field="*{totalPrice}"></h4>
+                <button id="orderBtn" type="submit" class="btn btn-primary" style="margin-left: 10px">결제</button>
+                <p id="problem" hidden>
+            </div>
         </div>
 
-        <div class="form-inline justify-content-center">
-            <!-- 전역 변수 선언 -->
-            <nav th:with="
-                pageNumber = ${orderList.pageable.pageNumber},
-                pageSize = ${orderList.pageable.pageSize},
-                totalPages = ${orderList.totalPages},
-                startPage = ${T(java.lang.Math).floor(pageNumber / pageSize) * pageSize + 1},
-                tempEndPage = ${startPage + pageSize - 1},
-                endPage = (${tempEndPage < totalPages ? tempEndPage : totalPages})"
-                 aria-label="Page navigation">
+        <div th:if="${order.getOrderItemDtoList().size() == 0}" class="form-inline justify-content-center">
 
-                <ul class="pagination ">
-                    <!-- 처음으로 이동 -->
-                    <li th:classappend="${pageNumber < pageSize} ? 'disabled'" class="page-item">
-                        <a class="page-link" th:href="@{/(page=0)}">
-                            <span>&laquo;</span>
-                            <span class="sr-only">First</span>
-                        </a>
-                    </li>
+            <h2>주문목록이 비어있습니다.</h2>
 
-                    <!-- 이전으로 이동 -->
-                    <li th:classappend="${orderList.first} ? 'disabled'" class="page-item">
-                        <a class="page-link" th:href="${orderList.first} ? '#' : '@{/(page=${pageNumber - 1})}'"
-                           aria-label="Previous">
-                            <span aria-hidden="true">&lt;</span>
-                            <span class="sr-only">Previous</span>
-                        </a>
-                    </li>
-
-                    <!-- 특정 페이지로 이동 -->
-                    <li th:each="page: ${#numbers.sequence(startPage, endPage)}"
-                        th:classappend="${page == pageNumber + 1} ? 'active'" class="page-item">
-                        <a th:text="${page}" class="page-link" th:href="@{/(page=${page - 1})}"></a>
-                    </li>
-
-                    <!-- 다음으로 이동 -->
-                    <li th:classappend="${orderList.last} ? 'disabled'" class="page-item">
-                        <a class="page-link" th:href="${orderList.last} ? '#' : '@{/(page=${pageNumber + 1})}'"
-                           aria-label="Next">
-                            <span aria-hidden="true">&gt;</span>
-                            <span class="sr-only">Next</span>
-                        </a>
-                    </li>
-
-                    <!-- 마지막으로 이동 -->
-                    <li th:classappend=" ${T(java.lang.Math).floor(totalPages / pageSize) * pageSize - 1 <= startPage} ? 'disabled'"
-                        class="page-item">
-                        <a class="page-link" th:href="@{/(page=${totalPages - 1})}">
-                            <span>&raquo;</span>
-                            <span class="sr-only">Last</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
         </div>
-
-        <br><hr><br>
-
-        <div style="float: right; margin-right: 50px">
-            <h4 th:text="'총 금액 : ' + ${#numbers.formatInteger(totalPrice, 1, 'COMMA')} + '원'" style=""></h4>
-            <button id="orderBtn" type="submit" class="btn btn-primary" style="margin-left: 10px" onclick="validate()">결제</button>
-            <p id = "problem" hidden>
-        </div>
-    </div> <!-- /container -->
-
-    <div th:unless="${!orderList.isEmpty()}" class="form-inline justify-content-center">
-
-        <h2>주문목록이 비어있습니다.</h2>
-
-    </div>
+    </form>
 
 </div>
 

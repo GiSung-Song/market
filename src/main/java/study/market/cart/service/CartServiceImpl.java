@@ -34,7 +34,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public Long addCartItem(CartItemDto cartItemDto, String email) {
 
-        Member member = getMember(email);
+        Member member = findMember(email);
 
         Item item = itemRepository.findById(cartItemDto.getItemId()).orElseThrow(EntityNotFoundException::new);
         Cart cart = cartRepository.findByMemberId(member.getId());
@@ -68,7 +68,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public void deleteCartItem(CartItemDto cartItemDto, String email) {
 
-        Member member = getMember(email);
+        Member member = findMember(email);
 
         Cart cart = cartRepository.findByMemberId(member.getId());
 
@@ -78,7 +78,7 @@ public class CartServiceImpl implements CartService {
         } else {
             //장바구니에 해당 상품이 없을 때 오류처리
             CartItem cartItem = cart.getCartItemList().stream()
-                    .filter(inCartItem -> inCartItem.getId() == cartItemDto.getCartItemId())
+                    .filter(inCartItem -> inCartItem.getItem().getId() == cartItemDto.getItemId())
                     .findFirst()
                     .orElseThrow(IllegalStateException::new);
 
@@ -92,7 +92,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public void clearCart(String email) {
 
-        Member member = getMember(email);
+        Member member = findMember(email);
         Cart cart = cartRepository.findByMemberId(member.getId());
 
         if (cart == null) {
@@ -103,21 +103,11 @@ public class CartServiceImpl implements CartService {
 
     }
 
-    private Member getMember(String email) {
-        Member member = memberRepository.findByEmail(email);
-
-        if (member == null) {
-            throw new EntityNotFoundException("해당 회원을 찾을 수 없습니다.");
-        }
-
-        return member;
-    }
-
     @Transactional(readOnly = true)
     @Override
     public Page<CartItemDto> getCartItemList(String email, Pageable pageable) {
 
-        Member member = getMember(email);
+        Member member = findMember(email);
 
         //회원 장바구니 검색
         Cart cart = cartRepository.findByMemberId(member.getId());
@@ -150,7 +140,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public void editCount(CartItemDto cartItemDto, String email) {
 
-        Member member = getMember(email);
+        Member member = findMember(email);
 
         Cart cart = cartRepository.findByMemberId(member.getId());
 
@@ -159,10 +149,20 @@ public class CartServiceImpl implements CartService {
         }
 
         CartItem cartItem = cart.getCartItemList().stream()
-                .filter(cartItm -> cartItm.getId() == cartItemDto.getCartItemId())
+                .filter(cartItm -> cartItm.getItem().getId() == cartItemDto.getItemId())
                 .findFirst()
                 .orElseThrow(IllegalStateException::new);
 
         cartItem.editCount(cartItemDto.getCount());
+    }
+
+    private Member findMember(String email) {
+        Member member = memberRepository.findByEmail(email);
+
+        if (member == null) {
+            throw new EntityNotFoundException("해당 회원을 찾을 수 없습니다.");
+        }
+
+        return member;
     }
 }

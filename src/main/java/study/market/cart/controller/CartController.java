@@ -67,13 +67,4 @@ public class CartController {
         cartService.clearCart(email);
     }
 
-    @PostMapping("/cart/ready-order")
-    public String orderItemToCart(@ModelAttribute("item") CartItemDto cartItemDto, Principal principal) {
-        String email = principal.getName();
-
-        cartService.addCartItem(cartItemDto, email);
-
-        return "redirect:/order-list";
-    }
-
 }

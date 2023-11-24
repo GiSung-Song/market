@@ -55,6 +55,8 @@ public class Order {
 
     private int totalPrice;
 
+    private String message;
+
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
@@ -89,10 +91,12 @@ public class Order {
     }
 
     //주문 생성
-    public static Order createOrder(Member member, String address, String detailAddress, String zipCode, List<OrderItem> orderItems) {
+    public static Order createOrder(Member member, String address, String detailAddress, String zipCode, List<OrderItem> orderItems, int totalPrice, String message) {
         Order order = new Order();
         order.addMember(member);
         order.addAddress(address, detailAddress, zipCode);
+        order.setTotalPrice(totalPrice);
+        order.setMessage(message);
 
         for (OrderItem orderItem : orderItems) {
             order.addOrderItem(orderItem);
@@ -113,5 +117,13 @@ public class Order {
         for (OrderItem orderItem : orderItems) {
             orderItem.cancelOrderItem();
         }
+    }
+
+    private void setTotalPrice(int totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    private void setMessage(String message) {
+        this.message = message;
     }
 }

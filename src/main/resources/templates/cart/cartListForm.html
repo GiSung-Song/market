@@ -9,10 +9,10 @@
     <script th:inline="javascript">
 
         function cancelItem(id) {
-            let cartItemId = id;
+            let itemId = id;
 
             let data = {
-                cartItemId : cartItemId,
+                itemId : itemId,
             };
 
             $.ajax({
@@ -54,7 +54,7 @@
         }
 
         function setCount(id, count, stock, bool) {
-            let cartItemId = id;
+            let itemId = id;
             let itemCount  = count;
 
             if (bool == "+") {
@@ -74,7 +74,7 @@
             }
 
             let data = {
-                cartItemId : cartItemId,
+                itemId : itemId,
                 count : itemCount
             };
 
@@ -138,16 +138,16 @@
                 <td th:text="${item.stock}"></td>
                 <td>
                     <div>
-                        <button id="minusBtn" th:idParam="${item.cartItemId}" th:countParam="${item.count}"
+                        <button id="minusBtn" th:idParam="${item.itemId}" th:countParam="${item.count}"
                                 onclick="setCount(this.getAttribute('idParam'), this.getAttribute('countParam'), '0', '-')">-</button>
                         <label th:text="${item.count}"></label>
-                        <button id="plusBtn" th:idParam="${item.cartItemId}" th:countParam="${item.count}" th:stockParam="${item.stock}"
+                        <button id="plusBtn" th:idParam="${item.itemId}" th:countParam="${item.count}" th:stockParam="${item.stock}"
                                 onclick="setCount(this.getAttribute('idParam'), this.getAttribute('countParam'), this.getAttribute('stockParam'), '+')">+</button>
 
                     </div>
                 </td>
                 <td th:text="${#numbers.formatInteger(item.itemTotalPrice, 1, 'COMMA')} + '원'"></td>
-                <td><button th:text="X" th:itemParam="${item.cartItemId}" onclick="cancelItem(this.getAttribute('itemParam'))">x</button></td>
+                <td><button th:text="X" th:itemParam="${item.itemId}" onclick="cancelItem(this.getAttribute('itemParam'))">x</button></td>
             </tr>
             </tbody>
         </table>
@@ -218,7 +218,7 @@
 
         <div style="float: right; margin-right: 50px">
             <h4 th:text="'총 금액 : ' + ${#numbers.formatInteger(totalPrice, 1, 'COMMA')} + '원'" style=""></h4>
-            <button id="orderBtn" type="button" th:onclick="|location.href='@{/order/order-list}'|" class="btn btn-primary" style="margin-left: 10px">주문</button>
+            <button id="orderBtn" type="button" th:onclick="|location.href='@{/order/order}'|" class="btn btn-primary" style="margin-left: 10px">주문</button>
         </div>
     </div> <!-- /container -->
 

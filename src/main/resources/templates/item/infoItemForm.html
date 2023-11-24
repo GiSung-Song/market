@@ -14,19 +14,12 @@
             let itemPrice = [[${item.price}]];
             let itemStock = [[${item.stock}]];
             let count     = document.getElementById("count").value;
-            let goUrl;
 
             if (count > itemStock) {
                 document.getElementById("problem").innerText = "재고 수량보다 많이 설정할 수 없습니다.";
                 document.getElementById("problem").hidden = false;
 
                 return;
-            }
-
-            if (bool == true) {
-                goUrl = "/cart/add";
-            } else {
-                goUrl = "/cart/ready-order";
             }
 
             const data = {
@@ -39,13 +32,17 @@
 
             $.ajax({
                 type: "post",
-                url: goUrl,
+                url: "/cart/add",
                 contentType: "application/json; charset=UTF-8",
                 data: JSON.stringify(data),
                 async : true,
                 success: function() {
-                    alert("장바구니에 담았습니다.");
-                    document.getElementById("problem").hidden = true;
+                    if (bool == false) {
+                        location.href="/order/order";
+                    } else {
+                        alert("장바구니에 담았습니다.");
+                        document.getElementById("problem").hidden = true;
+                    }
                 },
                 error: function(jqXHR) {
                     if (jqXHR.status == '401') {
