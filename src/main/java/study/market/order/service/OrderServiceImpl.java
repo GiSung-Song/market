@@ -45,14 +45,10 @@ public class OrderServiceImpl implements OrderService {
         //주문 상품 생성
         for (OrderItemDto orderItemDto : orderDto.getOrderItemDtoList()) {
             Item item = itemRepository.findById(orderItemDto.getItemId()).orElseThrow(EntityNotFoundException::new);
-
-            log.info("count : {}", orderItemDto.getCount());
             OrderItem orderItem = OrderItem.createOrderItem(item, orderItemDto.getCount());
 
             orderItems.add(orderItem);
         }
-
-        log.info("orderDto.getTotalPrice : {}", orderDto.getTotalPrice());
 
         //주문 생성
         Order order = Order.createOrder(

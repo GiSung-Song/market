@@ -9,6 +9,13 @@
     <script src="http://dmaps.daum.net/map_js_init/postcode.v2.js"></script>
     <script th:inline="javascript">
 
+        function checkPay() {
+
+            let check = confirm("결제하시겠습니까 ?");
+
+            return check;
+        }
+
         function findAddress() {
             new daum.Postcode({
                 oncomplete: function (data) {
@@ -144,7 +151,7 @@
 
 <div layout:fragment="content">
 
-    <form action="/order/order" role="form" method="post" th:object="${order}">
+    <form action="/order/order" role="form" method="post" th:object="${order}" onsubmit="return checkPay();">
         <h2 class="mb-4" style="margin-top: 15px; text-align: center">
             주문 목록
         </h2>
@@ -158,7 +165,6 @@
                 </div>
                 <div class="form-group">
                     <label th:for="zipCode">우편번호</label>
-
                     <input type="button" onclick="findAddress()" value="주소 찾기">
                     <input type="text" th:field="*{zipCode}" class="form-control" placeholder="우편번호" style="width: 100px" readonly>
                     <label th:for="address">주소</label>
@@ -179,6 +185,7 @@
             <table class="table">
                 <thead>
                 <tr>
+                    <td hidden></td>
                     <td>번호</td>
                     <td>상품명</td>
                     <td>가격</td>
@@ -189,24 +196,31 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="item, itemStat : ${order.orderItemDtoList}">
-                    <td th:text="${itemStat.count}" th:field="${itemStat.count}"></td>
-                    <td th:text="${item.itemName}" th:field="${item.itemName}"></td>
+                <tr th:each="item, itemStat : *{orderItemDtoList}">
+                    <td hidden>
+                        <input type="hidden" th:field="*{orderItemDtoList[__${itemStat.index}__].itemId}">
+                        <input type="hidden" th:field="*{orderItemDtoList[__${itemStat.index}__].itemName}">
+                        <input type="hidden" th:field="*{orderItemDtoList[__${itemStat.index}__].price}">
+                        <input type="hidden" th:field="*{orderItemDtoList[__${itemStat.index}__].stock}">
+                        <input type="hidden" th:field="*{orderItemDtoList[__${itemStat.index}__].count}">
+                        <input type="hidden" th:field="*{orderItemDtoList[__${itemStat.index}__].itemTotalPrice}">
+                    </td>
+                    <td th:text="${itemStat.count}"></td>
+                    <td th:text="${item.itemName}"></td>
                     <td th:text="${#numbers.formatInteger(item.price, 1, 'COMMA')} + '원'" th:field="${item.price}"></td>
                     <td th:text="${item.stock}" th:field="${item.stock}"></td>
                     <td>
                         <div>
-                            <button id="minusBtn" th:idParam="${item.itemId}" th:countParam="${item.count}"
+                            <button id="minusBtn" th:idParam="${item.itemId}" th:countParam="${item.count}" type="button"
                                     onclick="setCount(this.getAttribute('idParam'), this.getAttribute('countParam'), '0', '-')">-</button>
-                            <label th:text="${item.count}" th:field="${item.count}"></label>
-                            <button id="plusBtn" th:idParam="${item.itemId}" th:countParam="${item.count}" th:stockParam="${item.stock}"
+                            <label th:text="${item.count}"></label>
+                            <button id="plusBtn" th:idParam="${item.itemId}" th:countParam="${item.count}" th:stockParam="${item.stock}" type="button"
                                     onclick="setCount(this.getAttribute('idParam'), this.getAttribute('countParam'), this.getAttribute('stockParam'), '+')">+</button>
-
                         </div>
                     </td>
-                    <td th:text="${#numbers.formatInteger(item.itemTotalPrice, 1, 'COMMA')} + '원'" th:field="${item.itemTotalPrice}"></td>
+                    <td th:text="${#numbers.formatInteger(item.itemTotalPrice, 1, 'COMMA')} + '원'"></td>
                     <td>
-                        <button th:text="X" th:itemParam="${item.itemId}" onclick="cancelItem(this.getAttribute('itemParam'))">x</button>
+                        <button th:text="X" type="button" th:itemParam="${item.itemId}" onclick="cancelItem(this.getAttribute('itemParam'))">x</button>
                     </td>
                 </tr>
                 </tbody>
@@ -223,7 +237,8 @@
             <br>
 
             <div style="float: right; margin-right: 50px">
-                <h4 th:text="'총 금액 : ' + ${#numbers.formatInteger(order.totalPrice, 1, 'COMMA')} + '원'" th:field="*{totalPrice}"></h4>
+                <h4 th:text="'총 금액 : ' + ${#numbers.formatInteger(order.totalPrice, 1, 'COMMA')} + '원'"> </h4>
+                <input type="text" th:field="*{totalPrice}" hidden>
                 <button id="orderBtn" type="submit" class="btn btn-primary" style="margin-left: 10px">결제</button>
                 <p id="problem" hidden>
             </div>

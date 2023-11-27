@@ -2,18 +2,15 @@ package study.market.order.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import study.market.order.dto.OrderDto;
-import study.market.order.dto.OrderItemDto;
 import study.market.order.service.OrderService;
 
 import java.security.Principal;
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -32,7 +29,13 @@ public class OrderController {
     }
 
     @PostMapping("/order/order")
-    public String orderItem(OrderDto orderDto, Principal principal) {
+    public String orderItem(@ModelAttribute("order") OrderDto orderDto, Principal principal) {
+
+        log.info("orderDto : {}", orderDto.getZipCode());
+        log.info("orderDto : {}", orderDto.getMessage());
+        log.info("orderDto : {}", orderDto.getAddress());
+        log.info("orderDto : {}", orderDto.getDetailAddress());
+        log.info("orderDto : {}", orderDto.getTotalPrice());
 
         orderService.orderItem(orderDto, principal.getName());
 

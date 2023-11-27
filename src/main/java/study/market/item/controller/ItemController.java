@@ -4,21 +4,20 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import study.market.item.dto.ItemFormDto;
 import study.market.item.dto.ItemSearchCondition;
 import study.market.item.service.ItemService;
 
 import java.security.Principal;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Controller
@@ -79,11 +78,11 @@ public class ItemController {
     }
 
     @GetMapping("/item/list")
-    public String getItemListForm(@PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,
-                                  Model model, @ModelAttribute("condition") ItemSearchCondition condition) {
+    public String getItemListForm(@PageableDefault(page = 0, size = 10, direction = Sort.Direction.ASC) Pageable pageable,
+                                  @ModelAttribute("condition") ItemSearchCondition condition,
+                                  Model model) {
 
         Page<ItemFormDto> itemList = itemService.getItemAllPage(pageable);
-
         model.addAttribute("itemList", itemList);
 
         return "/item/itemListForm";
