@@ -2,11 +2,12 @@ package study.market.order.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import study.market.order.dto.OrderDto;
 import study.market.order.service.OrderService;
 
@@ -40,6 +41,41 @@ public class OrderController {
         orderService.orderItem(orderDto, principal.getName());
 
         return "redirect:/";
+    }
+
+    @GetMapping("/order/history")
+    public String getOrderHistory(@PageableDefault(size = 10) Pageable pageable, Model model, Principal principal) {
+        String email = principal.getName();
+
+        Page<OrderDto> orderHistoryList = orderService.getOrderHistoryList(email, pageable);
+        model.addAttribute("orderList", orderHistoryList);
+
+        return "/order/orderHistoryForm";
+    }
+
+    @PostMapping("/order/cancel")
+    @ResponseBody
+    public void cancelOrder(@RequestBody OrderDto orderDto, Principal principal) {
+
+        String email = principal.getName();
+        orderService.orderCancel(orderDto.getId(), email);
+    }
+
+    @GetMapping("/order/{id}")
+    public String getOrderDetail(@PathVariable(name = "id") Long orderId, Principal principal, Model model) {
+
+        String email = principal.getName();
+
+        OrderDto orderDto = orderService.getOrderDetail(orderId, email);
+
+        //주문자와 주문번호의 주문자가 다를 경우 주문목록으로
+        if (orderDto == null) {
+            return "/order/orderHistoryForm";
+        }
+
+        model.addAttribute("order", orderDto);
+
+        return "/order/orderHistoryDetailForm";
     }
 
 }

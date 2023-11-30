@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
+<!-- 사용자 스크립트 추가 -->
+<th:block layout:fragment="script">
+
+    <script th:inline="javascript">
+        function cancelOrder(orderId) {
+
+            if (confirm("주문을 취소하시겠습니까?") == false) {
+                return;
+            }
+
+            let data = {
+                id : orderId
+            };
+
+            $.ajax({
+                type: "post",
+                url: "/order/cancel",
+                contentType: "application/json; charset=UTF-8",
+                data: JSON.stringify(data),
+                async : true,
+                success: function() {
+                    window.location.reload(true);
+                },
+                error: function(jqXHR) {
+                    if (jqXHR.status == '401') {
+                        alert("로그인 페이지로 이동합니다.");
+                        location.href='/member/login';
+                    }
+                },
+            });
+        }
+    </script>
+
+</th:block>
+
+<!-- 사용자 CSS 추가 -->
+<th:block layout:fragment="css">
+    <style>
+        select {
+            margin-right: 10px;
+        }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
+
+    <h2 class="mb-4">
+        주문 목록
+    </h2>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <td>번호</td>
+            <td>주문 시각/취소 시각</td>
+            <td>배달 지역</td>
+            <td>총 금액</td>
+            <td>주문 상태</td>
+            <td>주문 취소</td>
+            <td>자세히</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="order, stat : ${orderList}">
+            <td th:text="${stat.count}"></td>
+            <td th:text="${#temporals.format(order.orderTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td th:text="${order.address} + ' ' + ${order.detailAddress}"></td>
+            <td th:text="${#numbers.formatInteger(order.totalPrice, 1, 'COMMA')} + '원'"></td>
+            <td th:text="${order.orderStatus.getOrderStatus()}"></td>
+            <td th:if="${order.orderStatus} == ${order.orderStatus.OUTSTANDING} or ${order.orderStatus} == ${order.orderStatus.READY_DELIVERY}">
+                <button type="button" th:text="주문취소" onclick="cancelOrder(this.getAttribute('idParam'))" th:idParam="${order.id}">주문취소</button>
+            </td>
+            <td th:if="${order.orderStatus} == ${order.orderStatus.FINISH_DELIVERY}" th:text="배달완료"></td>
+            <td th:if="${order.orderStatus} == ${order.orderStatus.DELIVERY}" th:text="배달중"></td>
+            <td th:if="${order.orderStatus} == ${order.orderStatus.CANCEL}" th:text="취소완료"></td>
+            <td>
+                <a th:href="'/order/' + ${order.id}" th:text="자세히"></a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <th:block>
+
+        <div class="form-inline justify-content-center">
+            <!-- 전역 변수 선언 -->
+            <nav th:with="
+                    pageNumber = ${orderList.pageable.pageNumber},
+                    pageSize = ${orderList.pageable.pageSize},
+                    totalPages = ${orderList.totalPages},
+                    startPage = ${T(java.lang.Math).floor(pageNumber / pageSize) * pageSize + 1},
+                    tempEndPage = ${startPage + pageSize - 1},
+                    endPage = (${tempEndPage > totalPages ? totalPages : tempEndPage})"
+                 aria-label="Page navigation">
+
+                <ul class="pagination ">
+                    <!-- 처음으로 이동 -->
+                    <li th:classappend="${orderList.first} ? 'disabled'" class="page-item">
+                        <a class="page-link" th:href="@{/order/history(page=0)}">
+                            <span>&laquo;</span>
+                            <span class="sr-only">First</span>
+                        </a>
+                    </li>
+
+                    <!-- 이전으로 이동 -->
+                    <li th:classappend="${orderList.first} ? 'disabled'" class="page-item">
+                        <a class="page-link" th:href="${orderList.first} ? '#' : @{/order/history(page=${pageNumber - 1})}"
+                           aria-label="Previous">
+                            <span aria-hidden="true">&lt;</span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                    </li>
+
+                    <!-- 특정 페이지로 이동 -->
+                    <li th:each="page: ${#numbers.sequence(startPage, (endPage == 0) ? 1 : endPage)}"
+                        th:classappend="${page == pageNumber + 1} ? 'active'" class="page-item">
+                        <a th:text="${page}" class="page-link" th:href="@{/order/history(page=${page - 1})}"></a>
+                    </li>
+
+                    <!-- 다음으로 이동 -->
+                    <li th:classappend="${orderList.last} ? 'disabled'" class="page-item">
+                        <a class="page-link" th:href="${orderList.last} ? '#' : @{/order/history(page=${pageNumber + 1})}"
+                           aria-label="Next">
+                            <span aria-hidden="true">&gt;</span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </li>
+
+                    <!-- 마지막으로 이동 -->
+                    <li th:classappend="${orderList.last} ? 'disabled'" class="page-item">
+                        <a class="page-link" th:href="@{/order/history(page=${totalPages - 1})}">
+                            <span>&raquo;</span>
+                            <span class="sr-only">Last</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+    </th:block>
+</div>
+
+</html>

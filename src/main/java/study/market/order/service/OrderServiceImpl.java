@@ -19,10 +19,12 @@ import study.market.order.dto.OrderDto;
 import study.market.order.dto.OrderItemDto;
 import study.market.order.entity.Order;
 import study.market.order.entity.OrderItem;
+import study.market.order.repository.OrderQueryRepository;
 import study.market.order.repository.OrderRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -33,6 +35,7 @@ public class OrderServiceImpl implements OrderService {
     private final ItemRepository itemRepository;
     private final OrderRepository orderRepository;
     private final CartRepository cartRepository;
+    private final OrderQueryRepository orderQueryRepository;
 
     @Transactional
     @Override
@@ -84,34 +87,19 @@ public class OrderServiceImpl implements OrderService {
     public Page<OrderDto> getOrderHistoryList(String email, Pageable pageable) {
         Member member = findMember(email);
 
-        Page<Order> orderList = orderRepository.findByMemberId(member.getId(), pageable);
-        List<OrderDto> orderDtoList = new ArrayList<>();
+        Page<Order> orderList = orderQueryRepository.findAllOrder(member.getId(), pageable);
 
-        for (Order order : orderList) {
+        Page<OrderDto> orderDtoPage = orderList.map(m -> OrderDto.builder()
+                .id(m.getId())
+                .phoneNumber(m.getMember().getPhoneNumber())
+                .address(m.getAddress())
+                .detailAddress(m.getDetailAddress())
+                .orderStatus(m.getOrderStatus())
+                .totalPrice(m.getTotalPrice())
+                .orderTime(m.getOrderTime())
+                .build());
 
-            //주문Dto 배달 지역 및 배달 상태 설정
-            OrderDto orderDto = new OrderDto();
-
-            orderDto.setAddress(order.getAddress());
-            orderDto.setDetailAddress(order.getDetailAddress());
-            orderDto.setZipCode(order.getZipCode());
-            orderDto.setOrderStatus(order.getOrderStatus());
-
-            //주문 내역 중 주문에 대한 주문 아이템 설정
-            List<OrderItemDto> orderItemDtoList = new ArrayList<>();
-            List<OrderItem> orderItems = order.getOrderItems();
-
-            for (OrderItem orderItem : orderItems) {
-                //주문 아이템 설정
-                OrderItemDto orderItemDto = toDtoOrderItem(orderItem);
-                orderItemDtoList.add(orderItemDto);
-            }
-
-            orderDto.setOrderItemDtoList(orderItemDtoList);
-            orderDtoList.add(orderDto);
-        }
-
-        return new PageImpl<>(orderDtoList, pageable, orderList.getTotalElements());
+        return orderDtoPage;
     }
 
     @Transactional(readOnly = true)
@@ -160,6 +148,46 @@ public class OrderServiceImpl implements OrderService {
         return orderDto;
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public OrderDto getOrderDetail(Long orderId, String email) {
+
+        Member member = findMember(email);
+        Order order = orderRepository.findById(orderId).orElseThrow(EntityNotFoundException::new);
+
+        Long orderMemberId = order.getMember().getId();
+
+        if (orderMemberId != member.getId()) {
+            return null;
+        }
+
+        List<OrderItemDto> orderItemDtoList = order.getOrderItems().stream().map(m -> OrderItemDto.builder()
+                .itemId(m.getId())
+                .orderItemId(m.getItem().getId())
+                .itemName(m.getItem().getItemName())
+                .price(m.getItem().getPrice())
+                .itemTotalPrice(m.getItemTotalPrice())
+                .count(m.getCount())
+                .itemType(m.getItem().getItemType())
+                .build()).collect(Collectors.toList());
+
+        OrderDto orderDto = OrderDto.builder()
+                .id(order.getId())
+                .orderItemDtoList(orderItemDtoList)
+                .phoneNumber(order.getMember().getPhoneNumber())
+                .address(order.getAddress())
+                .detailAddress(order.getDetailAddress())
+                .orderStatus(order.getOrderStatus())
+                .message(order.getMessage())
+                .totalPrice(order.getTotalPrice())
+                .orderTime(order.getOrderTime())
+                .startDeliveryTime(order.getStartDeliveryTime())
+                .finishDeliveryTime(order.getFinishDeliveryTime())
+                .build();
+
+        return orderDto;
+    }
+
     private Member findMember(String email) {
         Member member = memberRepository.findByEmail(email);
 
@@ -170,16 +198,5 @@ public class OrderServiceImpl implements OrderService {
         return member;
     }
 
-    private OrderItemDto toDtoOrderItem(OrderItem orderItem) {
-        OrderItemDto orderItemDto = new OrderItemDto();
 
-        orderItemDto.setItemId(orderItem.getId());
-        orderItemDto.setItemName(orderItem.getItem().getItemName());
-        orderItemDto.setStock(orderItem.getItem().getStock());
-        orderItemDto.setPrice(orderItem.getItem().getPrice());
-        orderItemDto.setItemTotalPrice(orderItem.getItemTotalPrice());
-        orderItemDto.setCount(orderItem.getCount());
-
-        return orderItemDto;
-    }
 }

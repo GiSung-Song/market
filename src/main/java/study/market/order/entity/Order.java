@@ -102,17 +102,19 @@ public class Order {
             order.addOrderItem(orderItem);
         }
 
-        order.editOrderStatus(OrderStatus.OUTSTANDING);
+        order.editOrderStatus(OrderStatus.READY_DELIVERY);
+        order.setOrderTime();
         return order;
     }
 
     public void cancelOrder() {
 
-        if (this.orderStatus == OrderStatus.READY_DELIVERY || this.orderStatus == OrderStatus.FINISH_DELIVERY) {
+        if (this.orderStatus == OrderStatus.DELIVERY || this.orderStatus == OrderStatus.FINISH_DELIVERY) {
             throw new IllegalStateException("배송중이거나 배송완료 된 상품은 취소가 불가능합니다.");
         }
 
         editOrderStatus(OrderStatus.CANCEL);
+        setOrderTime();
 
         for (OrderItem orderItem : orderItems) {
             orderItem.cancelOrderItem();
@@ -125,5 +127,9 @@ public class Order {
 
     private void setMessage(String message) {
         this.message = message;
+    }
+
+    private void setOrderTime() {
+        this.orderTime = LocalDateTime.now();
     }
 }

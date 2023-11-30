@@ -30,6 +30,10 @@
                 </li>
 
                 <li class="nav-item">
+                    <a class="nav-link" href="/order/history" sec:authorize="hasAuthority('USER')">주문내역</a>
+                </li>
+
+                <li class="nav-item">
                     <a class="nav-link" href="/member/info" sec:authorize="isAuthenticated()">회원정보 및 수정</a>
                 </li>
 

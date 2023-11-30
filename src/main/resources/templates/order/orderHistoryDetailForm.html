@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
+<!-- 사용자 스크립트 추가 -->
+<th:block layout:fragment="script">
+
+    <script th:inline="javascript">
+
+    </script>
+
+</th:block>
+
+<!-- 사용자 CSS 추가 -->
+<th:block layout:fragment="css">
+    <style>
+        p {
+            font-size: 15px;
+        }
+    </style>
+</th:block>
+
+<div layout:fragment="content">
+
+    <h2 class="mb-4">
+        주문 내역
+    </h2>
+
+    <form role="form" method="get" th:object="${order}">
+
+        <div class="form-group" style="margin-left: 100px">
+            <p th:text="'전화번호 : ' + ${order.phoneNumber}"></p>
+        </div>
+        <div class="form-group" style="margin-left: 100px">
+            <p th:text="'주소 : ' + ${order.address} + ' ' + ${order.detailAddress}"></p>
+        </div>
+        <div class="form-group" style="margin-left: 100px">
+            <p th:text="'주문상태 : ' + ${order.orderStatus.getOrderStatus()}"></p>
+            <p th:if="${order.orderStatus} == ${order.orderStatus.CANCEL}" th:text="'취소시각 : ' + ${#temporals.format(order.orderTime, 'yyyy-MM-dd HH:mm:ss')}">
+            <p th:if="${order.orderStatus} == ${order.orderStatus.READY_DELIVERY}" th:text="'주문시각 : ' + ${#temporals.format(order.orderTime, 'yyyy-MM-dd HH:mm:ss')}">
+            <p th:if="${order.orderStatus} == ${order.orderStatus.DELIVERY}" th:text="'배달시작시각 : ' + ${#temporals.format(order.startDeliveryTime, 'yyyy-MM-dd HH:mm:ss')}">
+            <p th:if="${order.orderStatus} == ${order.orderStatus.FINISH_DELIVERY}" th:text="'배달완료시각 : ' + ${#temporals.format(order.finishDeliveryTime, 'yyyy-MM-dd HH:mm:ss')}">
+        </div>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <td>번호</td>
+                <td>타입</td>
+                <td>상품명</td>
+                <td>개수</td>
+                <td>총 금액</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order, stat : ${order.orderItemDtoList}">
+                <td th:text="${stat.count}"></td>
+                <td th:text="${order.itemType.getItemTypeKorean()}"></td>
+                <td th:text="${order.itemName}"></td>
+                <td th:text="${order.count} + '개'"></td>
+                <td th:text="${#numbers.formatInteger(order.itemTotalPrice, 1, 'COMMA')} + '원'"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="form-group" style="text-align: center">
+            <h2 th:text="'총 금액 : ' + ${#numbers.formatInteger(order.totalPrice, 1, 'COMMA')} + '원'"></h2>
+        </div>
+
+    </form>
+</div>
+
+</html>
