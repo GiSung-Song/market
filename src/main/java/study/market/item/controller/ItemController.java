@@ -14,9 +14,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import study.market.item.dto.ItemFormDto;
 import study.market.item.dto.ItemSearchCondition;
+import study.market.item.entity.Item;
 import study.market.item.service.ItemService;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -78,13 +80,23 @@ public class ItemController {
     }
 
     @GetMapping("/item/list")
-    public String getItemListForm(@PageableDefault(page = 0, size = 10, direction = Sort.Direction.ASC) Pageable pageable,
-                                  @ModelAttribute("condition") ItemSearchCondition condition,
-                                  Model model) {
+    public String getItemListForm(
+            @PageableDefault(size = 10, sort = "itemId", direction = Sort.Direction.ASC) Pageable pageable,
+            @RequestParam(value = "itemType", required = false, defaultValue = "ALL") String itemType,
+            @RequestParam(value = "itemName", required = false, defaultValue = "") String itemName,
+            Model model) {
 
-        Page<ItemFormDto> itemList = itemService.getItemAllPage(pageable);
-        model.addAttribute("itemList", itemList);
+        log.info("itemType : {}", itemType);
+        log.info("itemName : {}", itemName);
+
+        ItemSearchCondition condition = new ItemSearchCondition();
+        condition.setItemType(itemType);
+        condition.setItemName(itemName);
+
+        Page<ItemFormDto> itemSearchPage = itemService.getItemSearchPage(condition, pageable);
+        model.addAttribute("itemList", itemSearchPage);
 
         return "/item/itemListForm";
     }
+
 }

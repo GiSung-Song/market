@@ -3,9 +3,7 @@ package study.market.cart.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import study.market.cart.dto.CartItemDto;
@@ -105,7 +103,7 @@ public class CartServiceImpl implements CartService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<CartItemDto> getCartItemList(String email, Pageable pageable) {
+    public List<CartItemDto> getCartItemList(String email) {
 
         Member member = findMember(email);
 
@@ -133,7 +131,7 @@ public class CartServiceImpl implements CartService {
             cartItemDtoList.add(cartItemDto);
         }
 
-        return new PageImpl<>(cartItemDtoList, pageable, cartItemList.size());
+        return cartItemDtoList;
     }
 
     @Transactional

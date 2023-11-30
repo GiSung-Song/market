@@ -14,6 +14,6 @@ public class ItemSearchCondition {
     private String itemName;
     private String orderPrice;
     private ItemStatus itemStatus;
-    private ItemType itemType;
+    private String itemType;
 
 }

@@ -15,4 +15,5 @@ public interface ItemService {
     ItemFormDto getItemInfo(Long itemId);
     List<Item> getItemAllList(ItemSearchCondition condition);
     Page<ItemFormDto> getItemAllPage(Pageable pageable);
+    Page<ItemFormDto> getItemSearchPage(ItemSearchCondition condition, Pageable pageable);
 }

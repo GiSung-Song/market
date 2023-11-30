@@ -1,22 +1,23 @@
 package study.market.item.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import study.market.item.dto.*;
+import study.market.item.dto.ItemFormDto;
+import study.market.item.dto.ItemSearchCondition;
 import study.market.item.entity.Item;
 import study.market.item.repository.ItemQueryRepository;
 import study.market.item.repository.ItemRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
@@ -71,30 +72,42 @@ public class ItemServiceImpl implements ItemService {
                 .build();
     }
 
+    @Transactional
     @Override
     public List<Item> getItemAllList(ItemSearchCondition condition) {
         return itemQueryRepository.findAll(condition);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Page<ItemFormDto> getItemAllPage(Pageable pageable) {
 
         Page<Item> items = itemRepository.findAll(pageable);
-        List<ItemFormDto> itemFormDtoList = new ArrayList<>();
+        Page<ItemFormDto> itemFormDtoPage = toDtoPage(items);
 
-        for (Item item : items) {
-            ItemFormDto dto = ItemFormDto.builder()
-                    .id(item.getId())
-                    .itemType(item.getItemType())
-                    .itemStatus(item.getItemStatus())
-                    .itemName(item.getItemName())
-                    .price(item.getPrice())
-                    .stock(item.getStock())
-                    .build();
+        return itemFormDtoPage;
+    }
 
-            itemFormDtoList.add(dto);
-        }
+    @Transactional(readOnly = true)
+    @Override
+    public Page<ItemFormDto> getItemSearchPage(ItemSearchCondition condition, Pageable pageable) {
 
-        return new PageImpl<>(itemFormDtoList, pageable, items.getTotalElements());
+        Page<Item> items = itemQueryRepository.findSearchCondition(condition, pageable);
+        Page<ItemFormDto> itemFormDtoPage = toDtoPage(items);
+
+        return itemFormDtoPage;
+    }
+
+    public Page<ItemFormDto> toDtoPage(Page<Item> itemPage) {
+        Page<ItemFormDto> itemFormDtoPage = itemPage.map(m -> ItemFormDto.builder()
+                .id(m.getId())
+                .itemType(m.getItemType())
+                .itemStatus(m.getItemStatus())
+                .itemName(m.getItemName())
+                .price(m.getPrice())
+                .stock(m.getStock())
+                .build());
+
+        return itemFormDtoPage;
     }
 }

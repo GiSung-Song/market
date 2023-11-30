@@ -12,6 +12,7 @@ import study.market.cart.dto.CartItemDto;
 import study.market.cart.service.CartService;
 
 import java.security.Principal;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -47,9 +48,9 @@ public class CartController {
     }
 
     @GetMapping("/cart/cart-list")
-    public String getCartForm(Model model, Principal principal,@PageableDefault(page = 0, size = 10) Pageable pageable) {
+    public String getCartForm(Model model, Principal principal) {
 
-        Page<CartItemDto> cartItemList = cartService.getCartItemList(principal.getName(), pageable);
+        List<CartItemDto> cartItemList = cartService.getCartItemList(principal.getName());
 
         int totalPrice = cartItemList.stream()
                         .mapToInt(cartItem -> cartItem.getItemTotalPrice()).sum();
