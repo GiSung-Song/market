@@ -4,8 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import study.market.delievery.entity.Delivery;
 import study.market.member.entity.Member;
-import study.market.order.OrderStatus;
+import study.market.order.enumType.OrderStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -37,9 +38,13 @@ public class Order {
     @Column(name = "order_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "delivery_id")
+    private Delivery delivery;
 
     @Column(nullable = false)
     private String address;
@@ -76,6 +81,18 @@ public class Order {
     public void addOrderItem(OrderItem orderItem) {
         orderItems.add(orderItem);
         orderItem.addOrder(this);
+    }
+
+    public void addDelivery(Delivery delivery) {
+        this.delivery = delivery;
+        this.startDeliveryTime = LocalDateTime.now();
+        this.orderStatus = OrderStatus.DELIVERY;
+    }
+
+    public void cancelDelivery() {
+        this.delivery = null;
+        this.startDeliveryTime = null;
+        this.orderStatus = OrderStatus.READY_DELIVERY;
     }
 
     //주소지 설정

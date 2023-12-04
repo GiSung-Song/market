@@ -18,6 +18,14 @@
                 </li>
 
                 <li class="nav-item">
+                    <a class="nav-link" href="/delivery/wait-list" sec:authorize="hasAuthority('DRIVER')">배달대기 목록</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/item/register" sec:authorize="hasAuthority('DRIVER')">배달내역</a>
+                </li>
+
+                <li class="nav-item">
                     <a class="nav-link" href="" sec:authorize="hasAuthority('ADMIN')">주문 현황</a>
                 </li>
 

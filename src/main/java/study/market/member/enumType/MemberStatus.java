@@ -1,4 +1,4 @@
-package study.market.member;
+package study.market.member.enumType;
 
 public enum MemberStatus {
 

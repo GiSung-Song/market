@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import study.market.item.ItemStatus;
-import study.market.item.ItemType;
+import study.market.item.enumType.ItemStatus;
+import study.market.item.enumType.ItemType;
 
 /**
  * 아이템 테이블

@@ -4,8 +4,8 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import study.market.etc.annotation.ValidEnum;
-import study.market.item.ItemStatus;
-import study.market.item.ItemType;
+import study.market.item.enumType.ItemStatus;
+import study.market.item.enumType.ItemType;
 
 @Getter
 @Setter

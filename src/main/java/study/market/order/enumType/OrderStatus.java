@@ -1,4 +1,4 @@
-package study.market.order;
+package study.market.order.enumType;
 
 public enum OrderStatus {
 

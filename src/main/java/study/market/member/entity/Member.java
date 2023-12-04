@@ -6,8 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import study.market.cart.entity.Cart;
 import study.market.etc.entity.BaseTimeEntity;
-import study.market.member.MemberStatus;
-import study.market.member.Role;
+import study.market.member.enumType.MemberStatus;
+import study.market.member.enumType.Role;
 import study.market.order.entity.Order;
 
 import java.util.ArrayList;
@@ -66,7 +66,7 @@ public class Member extends BaseTimeEntity {
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
     private List<Order> orders = new ArrayList<>();
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id")
     private Cart cart;
 

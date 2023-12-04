@@ -316,6 +316,15 @@
     </div>
 
     <form action="/member/signup" role="form" method="post" th:object="${member}">
+        <div class="form-group" >
+            <label th:for="role">회원/배달</label>
+            <div class="form-group">
+                <select th:field="*{role}" class="custom-select" style="margin-left: 100px; width: 100px">
+                    <option value="USER">회원</option>
+                    <option value="DRIVER">배달</option>
+                </select>
+            </div>
+        </div>
         <div class="form-group">
             <label th:for="email">이메일</label>
             <input type="email" th:field="*{email}" class="form-control" placeholder="이메일을 입력해주세요" style="width: 300px" onchange="changeEmail()">

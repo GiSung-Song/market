@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import study.market.member.Role;
+import study.market.member.enumType.Role;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -36,6 +36,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/member/login", "/", "/member/signup",
                                 "/member/findPw", "/member/checkEmail", "/mail/**", "/item/**").permitAll()
                         .requestMatchers("/admin/**").hasAuthority(Role.ADMIN.toString())
+                        .requestMatchers("/delivery/**").hasAuthority(Role.DRIVER.toString())
                         .anyRequest().authenticated())
                 .formLogin(login -> login
                         .loginPage("/member/login")

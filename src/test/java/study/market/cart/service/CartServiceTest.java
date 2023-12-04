@@ -7,12 +7,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import study.market.cart.dto.CartItemDto;
 import study.market.cart.entity.Cart;
 import study.market.cart.repository.CartRepository;
-import study.market.item.ItemStatus;
-import study.market.item.ItemType;
+import study.market.item.enumType.ItemStatus;
+import study.market.item.enumType.ItemType;
 import study.market.item.entity.Item;
 import study.market.item.repository.ItemRepository;
-import study.market.member.MemberStatus;
-import study.market.member.Role;
+import study.market.member.enumType.MemberStatus;
+import study.market.member.enumType.Role;
 import study.market.member.entity.Member;
 import study.market.member.repository.MemberRepository;
 

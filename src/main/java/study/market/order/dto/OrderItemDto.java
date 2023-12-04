@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import study.market.item.ItemType;
+import study.market.item.enumType.ItemType;
 
 @Getter
 @Setter

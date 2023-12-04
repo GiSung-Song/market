@@ -1,4 +1,4 @@
-package study.market.order.repository;
+package study.market.delievery.repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import study.market.order.entity.Order;
+import study.market.order.enumType.OrderStatus;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -15,37 +16,45 @@ import java.util.function.Supplier;
 import static study.market.order.entity.QOrder.order;
 
 @Repository
-public class OrderQueryRepository {
+public class DeliveryQueryRepository {
 
     private final JPAQueryFactory query;
 
-    public OrderQueryRepository(JPAQueryFactory query) {
+    public DeliveryQueryRepository(JPAQueryFactory query) {
         this.query = query;
     }
 
-    public Page<Order> findAllOrder(Long memberId, Pageable pageable) {
+    public Page<Order> getWaitingOrderList(String searchKeyword, Pageable pageable) {
 
         List<Order> content = query.select(order)
                 .from(order)
                 .where(
-                        memberIdEq(memberId))
-                .orderBy(order.orderTime.desc())
+                        order.orderStatus.eq(OrderStatus.READY_DELIVERY),
+                        likeAddress(searchKeyword),
+                        likeDetailAddress(searchKeyword))
+                .orderBy(order.orderTime.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        Long count = query.select(order.count())
+        Long count =  query.select(order.count())
                 .from(order)
                 .where(
-                        memberIdEq(memberId))
+                        order.orderStatus.eq(OrderStatus.READY_DELIVERY),
+                        likeAddress(searchKeyword),
+                        likeDetailAddress(searchKeyword))
                 .fetchOne();
 
         return new PageImpl<>(content, pageable, count);
 
     }
 
-    private BooleanBuilder memberIdEq(Long memberId) {
-        return nullSafeBuilder(() -> order.member.id.eq(memberId));
+    private BooleanBuilder likeAddress(String searchKeyword) {
+        return nullSafeBuilder(() -> order.address.like("%" + searchKeyword + '%'));
+    }
+
+    private BooleanBuilder likeDetailAddress(String searchKeyword) {
+        return nullSafeBuilder(() -> order.detailAddress.like("%" + searchKeyword + '%'));
     }
 
     private BooleanBuilder nullSafeBuilder(Supplier<BooleanExpression> f) {
@@ -55,5 +64,4 @@ public class OrderQueryRepository {
             return new BooleanBuilder();
         }
     }
-
 }

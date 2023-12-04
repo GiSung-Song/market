@@ -3,8 +3,7 @@ package study.market.item.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import study.market.item.ItemStatus;
-import study.market.item.ItemType;
+import study.market.item.enumType.ItemStatus;
 
 @Getter
 @Setter

@@ -7,9 +7,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import study.market.etc.config.CustomUserDetails;
-import study.market.member.MemberStatus;
-import study.market.member.Role;
+import study.market.member.enumType.MemberStatus;
+import study.market.member.enumType.Role;
 import study.market.member.dto.MemberEditPasswordReqDto;
 import study.market.member.dto.MemberFindPwReqDto;
 import study.market.member.dto.MemberFormDto;
@@ -35,6 +36,15 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
     @Transactional
     @Override
     public Long signUp(MemberSignUpReqDto dto) {
+
+        Role role;
+
+        if (dto.getRole().equalsIgnoreCase("DRIVER")) {
+            role = Role.DRIVER;
+        } else {
+            role = Role.USER;
+        }
+
         Member member = Member.builder()
                 .email(dto.getEmail())
                 .password(passwordEncoder.encode(dto.getPassword()))
@@ -44,7 +54,7 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
                 .detailAddress(dto.getDetailAddress())
                 .zipCode(dto.getZipCode())
                 .memberStatus(MemberStatus.ACTIVE)
-                .role(Role.USER)
+                .role(role)
                 .build();
 
         return memberRepository.save(member).getId();

@@ -68,9 +68,9 @@ public class OrderController {
 
         OrderDto orderDto = orderService.getOrderDetail(orderId, email);
 
-        //주문자와 주문번호의 주문자가 다를 경우 주문목록으로
+        //주문자와 주문번호의 주문자가 다를 경우 홈으로
         if (orderDto == null) {
-            return "/order/orderHistoryForm";
+            return "/main";
         }
 
         model.addAttribute("order", orderDto);

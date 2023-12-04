@@ -4,8 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.aspectj.weaver.ast.Or;
-import study.market.order.OrderStatus;
+import study.market.order.enumType.OrderStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,6 +27,7 @@ public class OrderDto {
     private LocalDateTime orderTime; //주문시각
     private LocalDateTime startDeliveryTime; //배달시작시각
     private LocalDateTime finishDeliveryTime; //배달완료시각
+    private boolean isDriver;
 
     @Builder
     public OrderDto(Long id, List<OrderItemDto> orderItemDtoList, String phoneNumber,

@@ -24,6 +24,8 @@ public class QOrder extends EntityPathBase<Order> {
 
     public final StringPath address = createString("address");
 
+    public final study.market.delievery.entity.QDelivery delivery;
+
     public final StringPath detailAddress = createString("detailAddress");
 
     public final DateTimePath<java.time.LocalDateTime> finishDeliveryTime = createDateTime("finishDeliveryTime", java.time.LocalDateTime.class);
@@ -36,7 +38,7 @@ public class QOrder extends EntityPathBase<Order> {
 
     public final ListPath<OrderItem, QOrderItem> orderItems = this.<OrderItem, QOrderItem>createList("orderItems", OrderItem.class, QOrderItem.class, PathInits.DIRECT2);
 
-    public final EnumPath<study.market.order.OrderStatus> orderStatus = createEnum("orderStatus", study.market.order.OrderStatus.class);
+    public final EnumPath<study.market.order.enumType.OrderStatus> orderStatus = createEnum("orderStatus", study.market.order.enumType.OrderStatus.class);
 
     public final DateTimePath<java.time.LocalDateTime> orderTime = createDateTime("orderTime", java.time.LocalDateTime.class);
 
@@ -64,6 +66,7 @@ public class QOrder extends EntityPathBase<Order> {
 
     public QOrder(Class<? extends Order> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
+        this.delivery = inits.isInitialized("delivery") ? new study.market.delievery.entity.QDelivery(forProperty("delivery"), inits.get("delivery")) : null;
         this.member = inits.isInitialized("member") ? new study.market.member.entity.QMember(forProperty("member"), inits.get("member")) : null;
     }
 

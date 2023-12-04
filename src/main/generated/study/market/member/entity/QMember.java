@@ -37,7 +37,7 @@ public class QMember extends EntityPathBase<Member> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    public final EnumPath<study.market.member.MemberStatus> memberStatus = createEnum("memberStatus", study.market.member.MemberStatus.class);
+    public final EnumPath<study.market.member.enumType.MemberStatus> memberStatus = createEnum("memberStatus", study.market.member.enumType.MemberStatus.class);
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifiedDate = _super.modifiedDate;
@@ -50,7 +50,7 @@ public class QMember extends EntityPathBase<Member> {
 
     public final StringPath phoneNumber = createString("phoneNumber");
 
-    public final EnumPath<study.market.member.Role> role = createEnum("role", study.market.member.Role.class);
+    public final EnumPath<study.market.member.enumType.Role> role = createEnum("role", study.market.member.enumType.Role.class);
 
     public final StringPath zipCode = createString("zipCode");
 

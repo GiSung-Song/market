@@ -120,12 +120,12 @@
 
         <div style="text-align: center">
             <div th:if="*{itemStatus == itemStatus.SELL}">
-                <label sec:authorize="!hasAuthority('ADMIN')" th:for="count">수량</label>
-                <input sec:authorize="!hasAuthority('ADMIN')" type="number" class="form-control" name="count" id="count" placeholder="수량"
+                <label sec:authorize="hasAuthority('USER')" th:for="count">수량</label>
+                <input sec:authorize="hasAuthority('USER')" type="number" class="form-control" name="count" id="count" placeholder="수량"
                        min="1" th:max="*{stock}" onkeyup="if(value < 0) value = 1;" value="1" style="width: 100px; margin: auto">
 
-                <button sec:authorize="!hasAuthority('ADMIN')" type="button" class="btn btn-primary" onclick="addCart(true)" style="margin-top: 10px">장바구니</button>
-                <button sec:authorize="!hasAuthority('ADMIN')" type="button" class="btn btn-primary" style="margin-top: 10px" onclick="addCart(false)">주문</button>
+                <button sec:authorize="hasAuthority('USER')" type="button" class="btn btn-primary" onclick="addCart(true)" style="margin-top: 10px">장바구니</button>
+                <button sec:authorize="hasAuthority('USER')" type="button" class="btn btn-primary" style="margin-top: 10px" onclick="addCart(false)">주문</button>
                 <p id = "problem" hidden>
             </div>
             <button sec:authorize="hasAuthority('ADMIN')" type="button" class="btn btn-primary" th:onclick="|location.href='@{/admin/item/{id}/edit(id=${item.id})}'|" style="margin-top: 10px">수정</button>

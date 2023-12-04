@@ -1,4 +1,4 @@
-package study.market.item;
+package study.market.item.enumType;
 
 public enum ItemType {
     FOOD("음식"),

@@ -3,7 +3,7 @@ package study.market.etc.config;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import study.market.member.MemberStatus;
+import study.market.member.enumType.MemberStatus;
 import study.market.member.entity.Member;
 
 import java.util.Collection;

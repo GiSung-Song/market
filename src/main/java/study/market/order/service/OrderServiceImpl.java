@@ -14,11 +14,13 @@ import study.market.cart.repository.CartRepository;
 import study.market.item.entity.Item;
 import study.market.item.repository.ItemRepository;
 import study.market.member.entity.Member;
+import study.market.member.enumType.Role;
 import study.market.member.repository.MemberRepository;
 import study.market.order.dto.OrderDto;
 import study.market.order.dto.OrderItemDto;
 import study.market.order.entity.Order;
 import study.market.order.entity.OrderItem;
+import study.market.order.enumType.OrderStatus;
 import study.market.order.repository.OrderQueryRepository;
 import study.market.order.repository.OrderRepository;
 
@@ -157,7 +159,7 @@ public class OrderServiceImpl implements OrderService {
 
         Long orderMemberId = order.getMember().getId();
 
-        if (orderMemberId != member.getId()) {
+        if (orderMemberId != member.getId() && member.getRole() != Role.DRIVER) {
             return null;
         }
 
@@ -184,6 +186,17 @@ public class OrderServiceImpl implements OrderService {
                 .startDeliveryTime(order.getStartDeliveryTime())
                 .finishDeliveryTime(order.getFinishDeliveryTime())
                 .build();
+
+        if (order.getDelivery() != null) {
+            Long driverId = order.getDelivery().getDriverId();
+            Member driver = memberRepository.findById(driverId).orElseThrow(EntityNotFoundException::new);
+
+            if (driver.getRole() == Role.DRIVER) {
+                orderDto.setDriver(true);
+            }
+        } else {
+            orderDto.setDriver(false);
+        }
 
         return orderDto;
     }

@@ -8,8 +8,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
-import study.market.item.ItemStatus;
-import study.market.item.ItemType;
+import study.market.item.enumType.ItemStatus;
+import study.market.item.enumType.ItemType;
 import study.market.item.dto.ItemSearchCondition;
 import study.market.item.entity.Item;
 
@@ -57,12 +57,9 @@ public class ItemQueryRepository {
         return new PageImpl<>(content, pageable, count);
     }
 
-    private BooleanExpression likeItemName(String itemName) {
-        if (StringUtils.hasText(itemName)) {
-            return item.itemName.like("%" + itemName + "%");
-        }
+    private BooleanBuilder likeItemName(String itemName) {
 
-        return null;
+        return nullSafeBuilder(() -> item.itemName.like("%" + itemName + '%'));
     }
 
     private BooleanBuilder itemStatusEq(ItemStatus itemStatus) {

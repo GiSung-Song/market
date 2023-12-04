@@ -7,7 +7,88 @@
 <th:block layout:fragment="script">
 
     <script th:inline="javascript">
+        function cancelOrder(orderId) {
 
+            if (confirm("주문을 취소하시겠습니까?") == false) {
+                return;
+            }
+
+            let data = {
+                id: orderId
+            };
+
+            $.ajax({
+                type: "post",
+                url: "/order/cancel",
+                contentType: "application/json; charset=UTF-8",
+                data: JSON.stringify(data),
+                async: true,
+                success: function () {
+                    window.location.reload(true);
+                },
+                error: function (jqXHR) {
+                    if (jqXHR.status == '401') {
+                        alert("로그인 페이지로 이동합니다.");
+                        location.href = '/member/login';
+                    }
+                },
+            });
+        }
+
+        function startDelivery(orderId) {
+
+            if (confirm("주문을 배달하시겠습니까?") == false) {
+                return;
+            }
+
+            let data = {
+                orderId: orderId
+            };
+
+            $.ajax({
+                type: "post",
+                url: "/delivery/start",
+                contentType: "application/json; charset=UTF-8",
+                data: JSON.stringify(data),
+                async: true,
+                success: function () {
+                    window.location.reload(true);
+                },
+                error: function (jqXHR) {
+                    if (jqXHR.status == '401') {
+                        alert("로그인 페이지로 이동합니다.");
+                        location.href = '/member/login';
+                    }
+                },
+            });
+        }
+
+        function cancelDelivery(orderId) {
+            if (confirm("배달을 취소하시겠습니까?") == false) {
+                return;
+            }
+
+            let data = {
+                orderId : orderId,
+            };
+
+            $.ajax({
+                type: "post",
+                url: "/delivery/cancel",
+                contentType: "application/json; charset=UTF-8",
+                data: JSON.stringify(data),
+                async : true,
+                success: function() {
+                    window.location.reload(true);
+                },
+                error: function(jqXHR) {
+                    if (jqXHR.status == '401') {
+                        alert("로그인 페이지로 이동합니다.");
+                        location.href='/member/login';
+                    }
+                },
+            });
+        }
     </script>
 
 </th:block>
@@ -66,6 +147,20 @@
 
         <div class="form-group" style="text-align: center">
             <h2 th:text="'총 금액 : ' + ${#numbers.formatInteger(order.totalPrice, 1, 'COMMA')} + '원'"></h2>
+        </div>
+
+        <div class="form-group" style="text-align: center" sec:authorize="hasAuthority('USER')" th:if="${order.orderStatus} == ${order.orderStatus.READY_DELIVERY}">
+            <button type="button" th:text="주문취소" onclick="cancelOrder(this.getAttribute('idParam'))" th:idParam="${order.id}">주문취소</button>
+        </div>
+
+        <div class="form-group" style="text-align: center" sec:authorize="hasAuthority('DRIVER')" th:if="${order.orderStatus} == ${order.orderStatus.READY_DELIVERY}">
+            <button type="button" th:text="배달하기" onclick="startDelivery(this.getAttribute('idParam'))" th:idParam="${order.id}"></button>
+            <button type="button" th:text="배달취소" onclick="cancelDelivery(this.getAttribute('idParam'))" th:if="${order.isDriver() == true}" th:idParam="${order.id}"></button>
+        </div>
+
+        <div class="form-group" style="text-align: center" sec:authorize="hasAuthority('DRIVER')"
+             th:if="${order.orderStatus} == ${order.orderStatus.DELIVERY} and ${order.isDriver() == true}">
+            <button type="button" th:text="배달취소" onclick="cancelDelivery(this.getAttribute('idParam'))" th:idParam="${order.id}"></button>
         </div>
 
     </form>
