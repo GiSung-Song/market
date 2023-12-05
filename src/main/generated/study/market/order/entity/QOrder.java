@@ -36,6 +36,8 @@ public class QOrder extends EntityPathBase<Order> {
 
     public final StringPath message = createString("message");
 
+    public final DateTimePath<java.time.LocalDateTime> orderCancelTime = createDateTime("orderCancelTime", java.time.LocalDateTime.class);
+
     public final ListPath<OrderItem, QOrderItem> orderItems = this.<OrderItem, QOrderItem>createList("orderItems", OrderItem.class, QOrderItem.class, PathInits.DIRECT2);
 
     public final EnumPath<study.market.order.enumType.OrderStatus> orderStatus = createEnum("orderStatus", study.market.order.enumType.OrderStatus.class);

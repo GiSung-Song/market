@@ -46,7 +46,28 @@ public class DeliveryQueryRepository {
                 .fetchOne();
 
         return new PageImpl<>(content, pageable, count);
+    }
 
+    public Page<Order> getDeliveryList(Long driverId, Pageable pageable) {
+
+        List<Order> content = query.select(order)
+                .from(order)
+                .where(
+                        order.orderStatus.notIn(OrderStatus.CANCEL, OrderStatus.READY_DELIVERY),
+                        order.delivery.driverId.eq(driverId))
+                .orderBy(order.orderTime.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        Long count = query.select(order.count())
+                .from(order)
+                .where(
+                        order.orderStatus.notIn(OrderStatus.CANCEL, OrderStatus.READY_DELIVERY),
+                        order.delivery.driverId.eq(driverId))
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, count);
     }
 
     private BooleanBuilder likeAddress(String searchKeyword) {

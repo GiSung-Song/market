@@ -89,6 +89,33 @@
                 },
             });
         }
+
+        function finishDelivery(orderId) {
+            if (confirm("배달을 완료하시겠습니까?") == false) {
+                return;
+            }
+
+            let data = {
+                orderId : orderId,
+            };
+
+            $.ajax({
+                type: "post",
+                url: "/delivery/finish",
+                contentType: "application/json; charset=UTF-8",
+                data: JSON.stringify(data),
+                async : true,
+                success: function() {
+                    window.location.reload(true);
+                },
+                error: function(jqXHR) {
+                    if (jqXHR.status == '401') {
+                        alert("로그인 페이지로 이동합니다.");
+                        location.href='/member/login';
+                    }
+                },
+            });
+        }
     </script>
 
 </th:block>
@@ -98,6 +125,9 @@
     <style>
         p {
             font-size: 15px;
+        }
+        form-group {
+            margin-left: 100px;
         }
     </style>
 </th:block>
@@ -110,18 +140,22 @@
 
     <form role="form" method="get" th:object="${order}">
 
-        <div class="form-group" style="margin-left: 100px">
+        <div class="form-group">
             <p th:text="'전화번호 : ' + ${order.phoneNumber}"></p>
         </div>
-        <div class="form-group" style="margin-left: 100px">
+        <div class="form-group">
             <p th:text="'주소 : ' + ${order.address} + ' ' + ${order.detailAddress}"></p>
         </div>
-        <div class="form-group" style="margin-left: 100px">
+        <div class="form-group">
             <p th:text="'주문상태 : ' + ${order.orderStatus.getOrderStatus()}"></p>
-            <p th:if="${order.orderStatus} == ${order.orderStatus.CANCEL}" th:text="'취소시각 : ' + ${#temporals.format(order.orderTime, 'yyyy-MM-dd HH:mm:ss')}">
-            <p th:if="${order.orderStatus} == ${order.orderStatus.READY_DELIVERY}" th:text="'주문시각 : ' + ${#temporals.format(order.orderTime, 'yyyy-MM-dd HH:mm:ss')}">
+            <p th:text="'주문시각 : ' + ${#temporals.format(order.orderTime, 'yyyy-MM-dd HH:mm:ss')}">
+            <p th:if="${order.orderStatus} == ${order.orderStatus.CANCEL}" th:text="'취소시각 : ' + ${#temporals.format(order.orderCancelTime, 'yyyy-MM-dd HH:mm:ss')}">
             <p th:if="${order.orderStatus} == ${order.orderStatus.DELIVERY}" th:text="'배달시작시각 : ' + ${#temporals.format(order.startDeliveryTime, 'yyyy-MM-dd HH:mm:ss')}">
             <p th:if="${order.orderStatus} == ${order.orderStatus.FINISH_DELIVERY}" th:text="'배달완료시각 : ' + ${#temporals.format(order.finishDeliveryTime, 'yyyy-MM-dd HH:mm:ss')}">
+        </div>
+        <div class="form-group" th:if="${order.orderStatus} == ${order.orderStatus.DELIVERY} or ${order.orderStatus} == ${order.orderStatus.FINISH_DELIVERY}">
+            <p th:text="'배달하시는 분 성함 : ' + ${order.driverName}"></p>
+            <p th:text="'배달하시는 분 번호 : ' + ${order.driverPhoneNumber}"></p>
         </div>
 
         <table class="table">
@@ -155,12 +189,12 @@
 
         <div class="form-group" style="text-align: center" sec:authorize="hasAuthority('DRIVER')" th:if="${order.orderStatus} == ${order.orderStatus.READY_DELIVERY}">
             <button type="button" th:text="배달하기" onclick="startDelivery(this.getAttribute('idParam'))" th:idParam="${order.id}"></button>
-            <button type="button" th:text="배달취소" onclick="cancelDelivery(this.getAttribute('idParam'))" th:if="${order.isDriver() == true}" th:idParam="${order.id}"></button>
         </div>
 
         <div class="form-group" style="text-align: center" sec:authorize="hasAuthority('DRIVER')"
              th:if="${order.orderStatus} == ${order.orderStatus.DELIVERY} and ${order.isDriver() == true}">
             <button type="button" th:text="배달취소" onclick="cancelDelivery(this.getAttribute('idParam'))" th:idParam="${order.id}"></button>
+            <button type="button" th:text="배달완료" onclick="finishDelivery(this.getAttribute('idParam'))" th:idParam="${order.id}"></button>
         </div>
 
     </form>

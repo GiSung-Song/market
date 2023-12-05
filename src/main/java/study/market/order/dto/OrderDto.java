@@ -25,13 +25,16 @@ public class OrderDto {
     private String message; //요청사항
     private int totalPrice; //총 가격
     private LocalDateTime orderTime; //주문시각
+    private LocalDateTime orderCancelTime; //주문시각
     private LocalDateTime startDeliveryTime; //배달시작시각
     private LocalDateTime finishDeliveryTime; //배달완료시각
-    private boolean isDriver;
+    private boolean isDriver; //배달자인지 확인
+    private String driverName; //배달자 이름
+    private String driverPhoneNumber; //배달자 전화번호
 
     @Builder
     public OrderDto(Long id, List<OrderItemDto> orderItemDtoList, String phoneNumber,
-                    String address, String detailAddress, String zipCode, OrderStatus orderStatus,
+                    String address, String detailAddress, String zipCode, OrderStatus orderStatus, LocalDateTime orderCancelTime,
                     String message, int totalPrice, LocalDateTime orderTime, LocalDateTime startDeliveryTime, LocalDateTime finishDeliveryTime) {
         this.id = id;
         this.orderItemDtoList = orderItemDtoList;
@@ -40,6 +43,7 @@ public class OrderDto {
         this.detailAddress = detailAddress;
         this.zipCode = zipCode;
         this.orderStatus = orderStatus;
+        this.orderCancelTime = orderCancelTime;
         this.message = message;
         this.totalPrice = totalPrice;
         this.orderTime = orderTime;

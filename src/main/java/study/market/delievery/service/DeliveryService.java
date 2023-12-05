@@ -9,4 +9,6 @@ public interface DeliveryService {
     Page<DeliveryListDto> getWaitingOrderList(String searchKeyword, Pageable pageable);
     void startDelivery(Long orderId, String email);
     void cancelDelivery(Long orderId, String email);
+    void finishDelivery(Long orderId, String email);
+    Page<DeliveryListDto> getDeliveryList(String email, Pageable pageable);
 }

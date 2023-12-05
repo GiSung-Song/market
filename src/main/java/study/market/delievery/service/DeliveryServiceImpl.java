@@ -61,4 +61,34 @@ public class DeliveryServiceImpl implements DeliveryService {
         delivery.cancelDelivery(order);
         deliveryRepository.delete(delivery);
     }
+
+    @Transactional
+    @Override
+    public void finishDelivery(Long orderId, String email) {
+        Order order = orderRepository.findById(orderId).orElseThrow(EntityNotFoundException::new);
+        Long deliveryId = order.getDelivery().getId();
+        Delivery delivery = deliveryRepository.findById(deliveryId).orElseThrow(EntityNotFoundException::new);
+
+        delivery.finishDelivery(order);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Page<DeliveryListDto> getDeliveryList(String email, Pageable pageable) {
+
+        Member driver = memberRepository.findByEmail(email);
+
+        Page<Order> waitingOrderList = deliveryQueryRepository.getDeliveryList(driver.getId(), pageable);
+        Page<DeliveryListDto> deliveryPage = waitingOrderList.map(m -> DeliveryListDto.builder()
+                .orderId(m.getId())
+                .orderTime(m.getOrderTime())
+                .startDeliveryTime(m.getStartDeliveryTime())
+                .finishDeliverTime(m.getFinishDeliveryTime())
+                .orderStatus(m.getOrderStatus())
+                .address(m.getAddress())
+                .detailAddress(m.getDetailAddress())
+                .build());
+
+        return deliveryPage;
+    }
 }

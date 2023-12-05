@@ -183,13 +183,18 @@ public class OrderServiceImpl implements OrderService {
                 .message(order.getMessage())
                 .totalPrice(order.getTotalPrice())
                 .orderTime(order.getOrderTime())
+                .orderCancelTime(order.getOrderCancelTime())
                 .startDeliveryTime(order.getStartDeliveryTime())
                 .finishDeliveryTime(order.getFinishDeliveryTime())
                 .build();
 
+        //배달 진행중 혹은 배달완료가 아니면
         if (order.getDelivery() != null) {
             Long driverId = order.getDelivery().getDriverId();
             Member driver = memberRepository.findById(driverId).orElseThrow(EntityNotFoundException::new);
+
+            orderDto.setDriverName(driver.getName());
+            orderDto.setDriverPhoneNumber(driver.getPhoneNumber());
 
             if (driver.getRole() == Role.DRIVER) {
                 orderDto.setDriver(true);

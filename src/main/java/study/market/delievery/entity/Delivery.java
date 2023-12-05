@@ -5,9 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import study.market.order.entity.Order;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Getter
 @NoArgsConstructor
@@ -34,6 +31,10 @@ public class Delivery {
 
     public void cancelDelivery(Order order) {
         order.cancelDelivery();
+    }
+
+    public void finishDelivery(Order order) {
+        order.finishDelivery();
     }
 
     public static Delivery startDelivery(Long driverId, Order order) {

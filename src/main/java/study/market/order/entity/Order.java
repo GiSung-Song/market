@@ -71,6 +71,8 @@ public class Order {
 
     private LocalDateTime finishDeliveryTime;
 
+    private LocalDateTime orderCancelTime;
+
     //member  order 연관관계 설정
     public void addMember(Member member) {
         this.member = member;
@@ -120,7 +122,7 @@ public class Order {
         }
 
         order.editOrderStatus(OrderStatus.READY_DELIVERY);
-        order.setOrderTime();
+        order.setOrderStartTime();
         return order;
     }
 
@@ -131,11 +133,20 @@ public class Order {
         }
 
         editOrderStatus(OrderStatus.CANCEL);
-        setOrderTime();
+        setOrderCancelTime();
 
         for (OrderItem orderItem : orderItems) {
             orderItem.cancelOrderItem();
         }
+    }
+
+    public void finishDelivery() {
+        editOrderStatus(OrderStatus.FINISH_DELIVERY);
+        setFinishDeliveryTime();
+    }
+
+    private void setFinishDeliveryTime() {
+        this.finishDeliveryTime = LocalDateTime.now();
     }
 
     private void setTotalPrice(int totalPrice) {
@@ -146,7 +157,11 @@ public class Order {
         this.message = message;
     }
 
-    private void setOrderTime() {
+    private void setOrderStartTime() {
         this.orderTime = LocalDateTime.now();
+    }
+
+    private void setOrderCancelTime() {
+        this.orderCancelTime = LocalDateTime.now();
     }
 }

@@ -27,7 +27,7 @@ public class DeliveryController {
         Page<DeliveryListDto> waitingOrderList = deliveryService.getWaitingOrderList(searchKeyword, pageable);
         model.addAttribute("orderList", waitingOrderList);
 
-        return "/delivery/waitList";
+        return "/delivery/waitListForm";
     }
 
     @PostMapping("/delivery/start")
@@ -44,6 +44,23 @@ public class DeliveryController {
 
         String email = principal.getName();
         deliveryService.cancelDelivery(startDto.getOrderId(), email);
+    }
+
+    @GetMapping("/delivery/list")
+    public String getDeliveryListForm(@PageableDefault(size = 10) Pageable pageable, Model model, Principal principal) {
+
+        String email = principal.getName();
+        Page<DeliveryListDto> deliveryList = deliveryService.getDeliveryList(email, pageable);
+        model.addAttribute("deliveryList", deliveryList);
+
+        return "/delivery/deliveryListForm";
+    }
+
+    @PostMapping("/delivery/finish")
+    @ResponseBody
+    public void finishDelivery(@RequestBody DeliveryDto startDto, Principal principal) {
+        String email = principal.getName();
+        deliveryService.finishDelivery(startDto.getOrderId(), email);
     }
 
 }
