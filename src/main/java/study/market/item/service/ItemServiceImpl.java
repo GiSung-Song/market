@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import study.market.item.dto.ItemFormDto;
+import study.market.item.dto.ItemSalesDto;
 import study.market.item.dto.ItemSearchCondition;
 import study.market.item.entity.Item;
 import study.market.item.repository.ItemQueryRepository;
@@ -80,22 +81,27 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<ItemFormDto> getItemAllPage(Pageable pageable) {
-
-        Page<Item> items = itemRepository.findAll(pageable);
-        Page<ItemFormDto> itemFormDtoPage = toDtoPage(items);
-
-        return itemFormDtoPage;
-    }
-
-    @Transactional(readOnly = true)
-    @Override
     public Page<ItemFormDto> getItemSearchPage(ItemSearchCondition condition, Pageable pageable) {
 
         Page<Item> items = itemQueryRepository.findSearchCondition(condition, pageable);
         Page<ItemFormDto> itemFormDtoPage = toDtoPage(items);
 
         return itemFormDtoPage;
+    }
+
+    @Override
+    public Page<ItemSalesDto> getSalesPage(ItemSearchCondition condition, Pageable pageable) {
+        Page<Item> itemPage = itemQueryRepository.findItemSales(condition, pageable);
+        Page<ItemSalesDto> itemSalesDtoPage = itemPage.map(m -> ItemSalesDto.builder()
+                .itemType(m.getItemType())
+                .itemName(m.getItemName())
+                .price(m.getPrice())
+                .salesCount(m.getSalesCount())
+                .sales(m.getSalesCount() * m.getPrice())
+                .stock(m.getStock())
+                .build());
+
+        return itemSalesDtoPage;
     }
 
     public Page<ItemFormDto> toDtoPage(Page<Item> itemPage) {

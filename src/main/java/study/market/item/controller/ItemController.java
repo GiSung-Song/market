@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import study.market.item.dto.ItemFormDto;
+import study.market.item.dto.ItemSalesDto;
 import study.market.item.dto.ItemSearchCondition;
 import study.market.item.entity.Item;
 import study.market.item.service.ItemService;
@@ -77,6 +78,26 @@ public class ItemController {
         itemService.modifyItem(itemFormDto);
 
         return "redirect:/item/" + itemId;
+    }
+
+    @GetMapping("/admin/sales-list")
+    public String itemSalesList(@RequestParam(value = "itemType", required = false, defaultValue = "ALL") String itemType,
+                                @RequestParam(value = "itemName", required = false, defaultValue = ""   ) String itemName,
+                                @RequestParam(value = "sortGbn" , required = false, defaultValue = "0"  ) String sortGbn,
+                                @PageableDefault(size = 10) Pageable pageable, Model model) {
+
+        ItemSearchCondition condition = new ItemSearchCondition();
+        condition.setItemName(itemName);
+        condition.setItemType(itemType);
+        condition.setSortGbn(sortGbn);
+
+        Page<ItemSalesDto> salesPage = itemService.getSalesPage(condition, pageable);
+        long sumSales = salesPage.stream().mapToLong(item -> item.getSales()).sum();
+
+        model.addAttribute("salesList", salesPage);
+        model.addAttribute("sumSales", sumSales);
+
+        return "/item/salesListForm";
     }
 
     @GetMapping("/item/list")

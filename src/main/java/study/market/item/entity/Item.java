@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import study.market.item.enumType.ItemStatus;
 import study.market.item.enumType.ItemType;
 
@@ -15,6 +16,7 @@ import study.market.item.enumType.ItemType;
  * price : 가격
  * stock : 재고량
  * itemStatus : 상품 상태
+ * accumulateSales : 누적판매량
  */
 
 @Getter
@@ -39,6 +41,9 @@ public class Item {
     @Enumerated(EnumType.STRING)
     private ItemStatus itemStatus;
 
+    @ColumnDefault("0")
+    private Long salesCount; //누적판매량
+
     @Builder
     public Item(ItemType itemType, String itemName, int price, int stock, ItemStatus itemStatus) {
         this.itemType = itemType;
@@ -58,11 +63,13 @@ public class Item {
 
     //상품 주문 시 재고 감소
     public void removeStock(int count) {
+        this.salesCount += count;
         this.stock -= count;
     }
 
     //상품 취소 시 재고 증가
     public void addStock(int count) {
+        this.salesCount -= count;
         this.stock += count;
     }
 

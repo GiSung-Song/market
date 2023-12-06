@@ -31,16 +31,9 @@ public class OrderController {
 
     @PostMapping("/order/order")
     public String orderItem(@ModelAttribute("order") OrderDto orderDto, Principal principal) {
+        Long orderId = orderService.orderItem(orderDto, principal.getName());
 
-        log.info("orderDto : {}", orderDto.getZipCode());
-        log.info("orderDto : {}", orderDto.getMessage());
-        log.info("orderDto : {}", orderDto.getAddress());
-        log.info("orderDto : {}", orderDto.getDetailAddress());
-        log.info("orderDto : {}", orderDto.getTotalPrice());
-
-        orderService.orderItem(orderDto, principal.getName());
-
-        return "redirect:/";
+        return "redirect:/order/" + orderId;
     }
 
     @GetMapping("/order/history")
