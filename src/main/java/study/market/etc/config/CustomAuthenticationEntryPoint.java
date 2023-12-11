@@ -4,20 +4,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.AuthenticationEntryPoint;
 
 import java.io.IOException;
 
-public class AjaxAuthenticationEntryPoint extends LoginUrlAuthenticationEntryPoint {
-
-    /**
-     * @param loginFormUrl URL where the login page can be found. Should either be
-     *                     relative to the web-app context path (include a leading {@code /}) or an absolute
-     *                     URL.
-     */
-    public AjaxAuthenticationEntryPoint(String loginFormUrl) {
-        super(loginFormUrl);
-    }
+public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
@@ -26,10 +17,12 @@ public class AjaxAuthenticationEntryPoint extends LoginUrlAuthenticationEntryPoi
 
         boolean isAjax = "XMLHttpRequest".equals(ajaxHeader);
 
+        //ajax 호출인 경우 view 에서 처리
         if (isAjax) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "인증되지 않은 회원입니다.");
-        } else {
-            super.commence(request, response, authException);
         }
+
+        //controller 에서 예외 처리
+        response.sendRedirect("/error/401");
     }
 }

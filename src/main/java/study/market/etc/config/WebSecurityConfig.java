@@ -33,7 +33,7 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/member/login", "/", "/member/signup",
+                        .requestMatchers("/member/login", "/", "/member/signup", "/error/**",
                                 "/member/findPw", "/member/checkEmail", "/mail/**", "/item/**").permitAll()
                         .requestMatchers("/admin/**").hasAuthority(Role.ADMIN.toString())
                         .requestMatchers("/delivery/**").hasAuthority(Role.DRIVER.toString())
@@ -48,7 +48,8 @@ public class WebSecurityConfig {
                         .logoutSuccessUrl("/member/login")
                         .invalidateHttpSession(true))
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(new AjaxAuthenticationEntryPoint("/member/login")))
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+                        .accessDeniedHandler(new CustomAccessDeniedHandler()))
                 .csrf(csrf -> csrf
                         .disable())
                 .build();
