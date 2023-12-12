@@ -4,7 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-public class ErrorController {
+public class SecurityErrorController {
 
     @GetMapping("/error/401")
     public String error401Page() {

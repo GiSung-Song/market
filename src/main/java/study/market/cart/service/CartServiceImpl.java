@@ -3,13 +3,14 @@ package study.market.cart.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import study.market.cart.dto.CartItemDto;
 import study.market.cart.entity.Cart;
 import study.market.cart.entity.CartItem;
 import study.market.cart.repository.CartRepository;
+import study.market.etc.config.CustomException;
+import study.market.etc.enumType.ErrorCode;
 import study.market.item.entity.Item;
 import study.market.item.repository.ItemRepository;
 import study.market.member.entity.Member;
@@ -34,7 +35,7 @@ public class CartServiceImpl implements CartService {
 
         Member member = findMember(email);
 
-        Item item = itemRepository.findById(cartItemDto.getItemId()).orElseThrow(EntityNotFoundException::new);
+        Item item = itemRepository.findById(cartItemDto.getItemId()).orElseThrow(() -> new CustomException(ErrorCode.ITEM_NOT_FOUND));
         Cart cart = cartRepository.findByMemberId(member.getId());
         CartItem cartItem = CartItem.createCartItem(item, cartItemDto.getCount());
 
@@ -72,13 +73,13 @@ public class CartServiceImpl implements CartService {
 
         //장바구니가 없을 시
         if (cart == null) {
-            throw new IllegalStateException("장바구니에 담긴 상품이 없습니다.");
+            throw new CustomException(ErrorCode.CART_NOT_FOUND);
         } else {
             //장바구니에 해당 상품이 없을 때 오류처리
             CartItem cartItem = cart.getCartItemList().stream()
                     .filter(inCartItem -> inCartItem.getItem().getId() == cartItemDto.getItemId())
                     .findFirst()
-                    .orElseThrow(IllegalStateException::new);
+                    .orElseThrow(() -> new CustomException(ErrorCode.CART_BAD_REQUEST));
 
             // 장바구니에 해당상품이 있을 시 삭제
             cart.removeCartItem(cartItem);
@@ -149,7 +150,7 @@ public class CartServiceImpl implements CartService {
         CartItem cartItem = cart.getCartItemList().stream()
                 .filter(cartItm -> cartItm.getItem().getId() == cartItemDto.getItemId())
                 .findFirst()
-                .orElseThrow(IllegalStateException::new);
+                .orElseThrow(() -> new CustomException(ErrorCode.CART_BAD_REQUEST));
 
         cartItem.editCount(cartItemDto.getCount());
     }
@@ -158,7 +159,7 @@ public class CartServiceImpl implements CartService {
         Member member = memberRepository.findByEmail(email);
 
         if (member == null) {
-            throw new EntityNotFoundException("해당 회원을 찾을 수 없습니다.");
+            throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
         }
 
         return member;

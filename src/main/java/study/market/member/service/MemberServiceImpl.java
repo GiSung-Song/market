@@ -3,22 +3,20 @@ package study.market.member.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
+import study.market.etc.config.CustomException;
 import study.market.etc.config.CustomUserDetails;
-import study.market.member.enumType.MemberStatus;
-import study.market.member.enumType.Role;
+import study.market.etc.enumType.ErrorCode;
 import study.market.member.dto.MemberEditPasswordReqDto;
 import study.market.member.dto.MemberFindPwReqDto;
 import study.market.member.dto.MemberFormDto;
 import study.market.member.dto.MemberSignUpReqDto;
 import study.market.member.entity.Member;
+import study.market.member.enumType.MemberStatus;
+import study.market.member.enumType.Role;
 import study.market.member.repository.MemberRepository;
-
-import java.util.NoSuchElementException;
 
 /**
  * signUp : 회원가입(회원가입 폼 dto)
@@ -71,11 +69,7 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
     @Transactional
     @Override
     public void editTmpPassword(String email, String password) {
-        Member member = memberRepository.findByEmail(email);
-
-        if (member == null) {
-            throw new NoSuchElementException("해당 메일로 가입된 정보가 없습니다.");
-        }
+        Member member = getMember(email);
 
         member.editPassword(passwordEncoder.encode(password));
     }
@@ -84,11 +78,7 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
     @Override
     public boolean editPassword(String email, MemberEditPasswordReqDto dto) {
 
-        Member member = memberRepository.findByEmail(email);
-
-        if (member == null) {
-            throw new NoSuchElementException("해당 메일로 가입된 정보가 없습니다.");
-        }
+        Member member = getMember(email);
 
         //입력받은 현재 비밀번호가 맞는지 검사
         boolean matches = passwordEncoder.matches(dto.getNowPassword(), member.getPassword());
@@ -105,11 +95,7 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) {
 
-        Member member = memberRepository.findByEmail(email);
-
-        if (member == null) {
-            throw new UsernameNotFoundException("해당 이메일로 가입된 정보가 없습니다.");
-        }
+        Member member = getMember(email);
 
         return new CustomUserDetails(member);
 
@@ -128,11 +114,7 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
     @Override
     public MemberFormDto getMemberInfo(String email) {
 
-        Member findMember = memberRepository.findByEmail(email);
-
-        if (findMember == null) {
-            throw new UsernameNotFoundException("등록된 회원이 없습니다.");
-        }
+        Member findMember = getMember(email);
 
         return MemberFormDto.builder()
                 .email(findMember.getEmail())
@@ -148,13 +130,18 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
     @Override
     public void editMember(MemberFormDto dto) {
 
-        Member findMember = memberRepository.findByEmail(dto.getEmail());
-
-        if (findMember == null) {
-            throw new UsernameNotFoundException("등록된 회원이 없습니다.");
-        }
+        Member findMember = getMember(dto.getEmail());
 
         //회원정보 수정
         findMember.editInfo(dto.getPhoneNumber(), dto.getAddress(), dto.getDetailAddress(), dto.getZipCode());
+    }
+
+    private Member getMember(String email) {
+        Member member = memberRepository.findByEmail(email);
+
+        if (member == null) {
+            throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
+        }
+        return member;
     }
 }

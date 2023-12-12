@@ -1,16 +1,16 @@
 package study.market.order.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import study.market.cart.entity.Cart;
 import study.market.cart.entity.CartItem;
 import study.market.cart.repository.CartRepository;
+import study.market.etc.config.CustomException;
+import study.market.etc.enumType.ErrorCode;
 import study.market.item.entity.Item;
 import study.market.item.repository.ItemRepository;
 import study.market.member.entity.Member;
@@ -20,7 +20,6 @@ import study.market.order.dto.OrderDto;
 import study.market.order.dto.OrderItemDto;
 import study.market.order.entity.Order;
 import study.market.order.entity.OrderItem;
-import study.market.order.enumType.OrderStatus;
 import study.market.order.repository.OrderQueryRepository;
 import study.market.order.repository.OrderRepository;
 
@@ -49,7 +48,7 @@ public class OrderServiceImpl implements OrderService {
 
         //주문 상품 생성
         for (OrderItemDto orderItemDto : orderDto.getOrderItemDtoList()) {
-            Item item = itemRepository.findById(orderItemDto.getItemId()).orElseThrow(EntityNotFoundException::new);
+            Item item = itemRepository.findById(orderItemDto.getItemId()).orElseThrow(() -> new CustomException(ErrorCode.ITEM_NOT_FOUND));
             OrderItem orderItem = OrderItem.createOrderItem(item, orderItemDto.getCount());
 
             orderItems.add(orderItem);
@@ -73,10 +72,10 @@ public class OrderServiceImpl implements OrderService {
     public void orderCancel(Long orderId, String email) {
         Member member = findMember(email);
 
-        Order order = orderRepository.findById(orderId).orElseThrow(EntityNotFoundException::new);
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
 
         if (order.getMember().getId() != (member.getId())) {
-            throw new IllegalStateException("회원이 주문한 상품이 아닙니다.");
+            throw new CustomException(ErrorCode.ORDER_BAD_REQUEST);
         }
 
         //주문 취소
@@ -155,7 +154,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderDto getOrderDetail(Long orderId, String email) {
 
         Member member = findMember(email);
-        Order order = orderRepository.findById(orderId).orElseThrow(EntityNotFoundException::new);
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
 
         Long orderMemberId = order.getMember().getId();
 
@@ -191,7 +190,7 @@ public class OrderServiceImpl implements OrderService {
         //배달 진행중 혹은 배달완료가 아니면
         if (order.getDelivery() != null) {
             Long driverId = order.getDelivery().getDriverId();
-            Member driver = memberRepository.findById(driverId).orElseThrow(EntityNotFoundException::new);
+            Member driver = memberRepository.findById(driverId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
             orderDto.setDriverName(driver.getName());
             orderDto.setDriverPhoneNumber(driver.getPhoneNumber());
@@ -210,7 +209,7 @@ public class OrderServiceImpl implements OrderService {
         Member member = memberRepository.findByEmail(email);
 
         if (member == null) {
-            throw new EntityNotFoundException("회원을 찾을 수 없습니다.");
+            throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
         }
 
         return member;

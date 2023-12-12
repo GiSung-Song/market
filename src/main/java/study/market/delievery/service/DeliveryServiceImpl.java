@@ -10,8 +10,9 @@ import study.market.delievery.dto.DeliveryListDto;
 import study.market.delievery.entity.Delivery;
 import study.market.delievery.repository.DeliveryQueryRepository;
 import study.market.delievery.repository.DeliveryRepository;
+import study.market.etc.config.CustomException;
+import study.market.etc.enumType.ErrorCode;
 import study.market.member.entity.Member;
-import study.market.member.enumType.Role;
 import study.market.member.repository.MemberRepository;
 import study.market.order.entity.Order;
 import study.market.order.repository.OrderRepository;
@@ -45,7 +46,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     public void startDelivery(Long orderId, String email) {
 
         Member driver = memberRepository.findByEmail(email);
-        Order order = orderRepository.findById(orderId).orElseThrow(EntityNotFoundException::new);
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
 
         Delivery delivery = Delivery.startDelivery(driver.getId(), order);
         deliveryRepository.save(delivery);
@@ -54,9 +55,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Transactional
     @Override
     public void cancelDelivery(Long orderId, String email) {
-        Order order = orderRepository.findById(orderId).orElseThrow(EntityNotFoundException::new);
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
         Long deliveryId = order.getDelivery().getId();
-        Delivery delivery = deliveryRepository.findById(deliveryId).orElseThrow(EntityNotFoundException::new);
+        Delivery delivery = deliveryRepository.findById(deliveryId).orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_NOT_FOUNT));
 
         delivery.cancelDelivery(order);
         deliveryRepository.delete(delivery);
@@ -65,9 +66,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Transactional
     @Override
     public void finishDelivery(Long orderId, String email) {
-        Order order = orderRepository.findById(orderId).orElseThrow(EntityNotFoundException::new);
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
         Long deliveryId = order.getDelivery().getId();
-        Delivery delivery = deliveryRepository.findById(deliveryId).orElseThrow(EntityNotFoundException::new);
+        Delivery delivery = deliveryRepository.findById(deliveryId).orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_NOT_FOUNT));
 
         delivery.finishDelivery(order);
     }

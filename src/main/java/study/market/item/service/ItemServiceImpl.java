@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import study.market.etc.config.CustomException;
+import study.market.etc.enumType.ErrorCode;
 import study.market.item.dto.ItemFormDto;
 import study.market.item.dto.ItemSalesDto;
 import study.market.item.dto.ItemSearchCondition;
@@ -14,7 +16,6 @@ import study.market.item.repository.ItemQueryRepository;
 import study.market.item.repository.ItemRepository;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +46,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findByItemName(dto.getItemName());
 
         if (item == null) {
-            throw new NoSuchElementException("해당 이름으로 등록 된 상품이 없습니다.");
+            throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
         }
 
         item.editItem(dto.getItemType(), dto.getItemStatus(), dto.getPrice(), dto.getStock());
@@ -54,14 +55,14 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public void removeItem(Long itemId) {
-        Item item = itemRepository.findById(itemId).orElseThrow(NoSuchElementException::new);
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new CustomException(ErrorCode.ITEM_NOT_FOUND));
         itemRepository.delete(item);
     }
 
     @Override
     public ItemFormDto getItemInfo(Long itemId) {
 
-        Item item = itemRepository.findById(itemId).orElseThrow(NoSuchElementException::new);
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new CustomException(ErrorCode.ITEM_NOT_FOUND));
 
         return ItemFormDto.builder()
                 .id(item.getId())

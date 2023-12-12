@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import study.market.etc.config.CustomException;
+import study.market.etc.enumType.ErrorCode;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -49,7 +51,7 @@ public class MailService {
 
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
-            throw new RuntimeException(e);
+            throw new CustomException(ErrorCode.MAIL_EXCEPTION);
         }
     }
 
