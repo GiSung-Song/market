@@ -94,4 +94,9 @@ cart / order controller 후 view 생성해서 테스트
 ### 2023.12.06
 관리자 화면 진행
 
-### 2023.12.
+### 2023.12.11
+Error 401 / 403 전용 페이지 생성
+AuthenticationEntryPoint / AccessDeniedHandler 수정
+
+### 2023.12.12
+CustomExceptionHandler 적용
